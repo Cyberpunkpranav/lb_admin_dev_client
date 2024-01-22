@@ -1,0 +1,617 @@
+:root{
+    --blue1:#4B82FB;
+    --blue2:#578AFB;
+    --blue3:#6393FC;
+    --blue4:#6F9BFC;
+    --blue5:#7BA3FC;
+    --blue6:#87ACFC;
+    --blue7:#93B4FD;
+    --blue8:#9FBCFD;
+    --blue9:#ABC5FD;
+    --blue10:#B7CDFD;
+    --blue11:#C3D5FE;
+    --blue12:#CFDEFE;
+    --blue13:#F3F7FF;
+    --white:#FFFFFF;
+    --black:#000000;
+    --gray1:#434956;
+    --gray2:#6F7A90;
+    --gray3:#E2E4E9;
+    --gray4:#F8F8F8;
+    --transparentgreen1:#2E7D320D;
+    --transparentgreen2:#2E7D3240;
+    --greenlight:#4CAF50;
+    --greenmain:#2E7D32;
+    --greendark:#1B5E20;
+    --transparentorange1:#ED6C020D;
+    --transparentorange2:#ED6C0240;
+    --orangelight:#FF9800;
+    --orangemain:#ED6C02;
+    --orangedark:#E65100;
+    --transparentred1:#D32F2F0D;
+    --transparentred2:#D32F2F40;
+    --redlight:#EF5350;
+    --redmain:#D32F2F;
+    --reddark:#C62828;  
+    --black25:#0000004a;
+    }
+
+*{
+    margin:0;
+    padding:0;
+}
+body {
+    margin:0;
+    padding:0;
+    font-family: 'Inter', sans-serif;
+    /* background-color:var(--gray4); */
+    /* background-image: url(../../public/images/bg_2.svg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    z-index:1; */
+    min-height: 100vh;
+}
+.bo{
+    color:#ffffff79
+}
+/*---------------------------------------------------bodyscrollbar css-------------------------------------------------------------------- */
+body::-webkit-scrollbar {
+    display: none;
+}
+
+::-webkit-scrollbar {
+    width: 0.5em;
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/*---------------------------------------------------bodyscrollbar css-------------------------------------------------------------------- */
+
+/*--------------------------------------------------------scrollbar css------------------------------------------------------------------- */
+.scroll {
+    padding: 0px;
+    overflow-x: auto;
+     white-space: nowrap;
+    height: max-content;
+    flex-wrap:nowrap;
+}
+
+.scroll::-webkit-scrollbar {
+    height: 0rem;
+    width: 0rem;
+}
+
+.scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+    background: var(--charcoal75);
+    border-radius: 65rem;
+}
+
+.scroll::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+.navbar-collapse{
+    flex-grow: 0;
+}
+.loader{
+height: 70vh;
+display:flex;
+justify-content: center;
+align-items: center;
+}
+.ck_editor{
+    height: max-content;
+}
+.ck{
+    height:max-content;
+}
+.icons{
+    width:2rem; 
+    z-index: 20;
+}
+.cursor-pointer{
+    cursor: pointer;
+}
+.cursor-drag{
+    cursor: grab;
+    border:1px solid transparent;
+}
+.cursor-drag:hover{
+    border:1px solid var(--blue1);
+    border-radius: 5px;
+}
+.cursor-drop{
+    cursor:copy;
+}
+.link{
+    color: var(--blue1);
+}
+.link:hover{
+color: var(--gray1);
+}
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.dropdown-menu li{
+    cursor: pointer;
+}
+.dropdown-toggle::after {
+    content: none;
+}
+.backdrop::before {
+    content: "";
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    /* Adjust the background color and opacity as needed */
+    z-index: 1 !important;
+    transition: all 0.2s;
+}
+/* .btn:focus {
+    color:var(--black);
+    background-color: var(--blue1);
+    border-color: var(--blue1);
+    box-shadow: none !important;
+}
+.btn:first-child:focus {
+    background-color: var(--blue1);
+    color:var(--blue1);
+    border-color: var(--blue1);
+    box-shadow: none !important;
+}
+
+.btn-sm:focus {
+    color:var(--black);
+    border-color: var(--blue1);
+    box-shadow: none !important;
+}
+.btn-sm:active {
+    color:var(--black);
+    border-color: var(--blue1);
+    box-shadow: none !important;
+} */
+/* .btn:hover{
+    color:initial;
+    border-color:initial ;
+    background-color:initial;
+}
+.btn-sm:hover{
+    color:initial;
+    border-color:initial ;
+    background-color:initial;  
+} */
+.btn-blue15,.bg-blue15{
+    background-color: var(--blue15);
+}
+.btn-blue14,.bg-blue14{
+    background-color: var(--blue14);
+}
+.btn-blue13,.bg-blue13{
+    background-color: var(--blue13);
+}
+.btn-blue12,.bg-blue12{
+    background-color: var(--blue12);
+}
+.btn-blue11,.bg-blue11{
+    background-color: var(--blue11);
+}
+.btn-blue10,.bg-blue10{
+    background-color: var(--blue10);
+}
+.btn-blue9,.bg-blue9{
+    background-color: var(--blue9);
+}
+.btn-blue8,.bg-blue18{
+    background-color: var(--blue8);
+}
+.btn-blue7,.bg-blue7{
+    background-color: var(--blue7);
+}
+.btn-blue6,.bg-blue6{
+    background-color: var(--blue6);
+}
+.btn-blue5,.bg-blue5{
+    background-color: var(--blue5);
+}
+.btn-blue4,.bg-blue4{
+    background-color: var(--blue4);
+}
+.btn-blue3,.bg-blue3{
+    background-color: var(--blue3);
+}
+.btn-blue2,.bg-blue2{
+    background-color: var(--blue2);
+}
+.btn-blue1,.bg-blue1{
+    background-color: var(--blue1);
+}
+.btn-white,.bg-white{
+    background-color: var(--white);
+}
+.btn-greendark,.bg-greendark{
+    background-color: var(--greendark);
+}
+.btn-greenmain,.bg-greenmain{
+    background-color: var(--greenmain);
+}
+.btn-greenlight,.bg-greenlight{
+    background-color: var(--greenlight);
+}
+.btn-reddark,.bg-reddark{
+    background-color: var(--reddark);
+}
+.btn-redmain,.bg-redmain{
+    background-color: var(--redmain);
+}
+.btn-redlight,.bg-redlight{
+    background-color: var(--redlight);
+}
+.btn-orangedark,.bg-orangedark{
+    background-color: var(--orangedark);
+}
+.btn-orangemain,.bg-orangemain{
+    background-color: var(--orangemain);
+}
+.btn-orangelight,.bg-orangelight{
+    background-color: var(--orangelight);
+}
+.btn-transparentorange1,.bg-transparentorange1{
+    background-color: var(--transparentorange1);
+}
+.btn-transparentorange2,.bg-transparentorange2{
+    background-color: var(--transparentorange2);
+}
+.btn-transparentred1,.bg-transparentred1{
+    background-color: var(--transparentred1);
+}
+.btn-transparentred2,.bg-transparentred2{
+    background-color: var(--transparentred2);
+}
+.btn-transparentgreen1,.bg-transparentgreen1{
+    background-color: var(--transparentgreen1);
+}
+.btn-transparentgreen2,.bg-transparentgreen2{
+    background-color: var(--transparentgreen2);
+}
+.bg-black25{
+    background-color: var(--black25);
+}
+.btn-gray1, .bg-gray1{
+    background-color: var(--gray1);
+}
+.btn-gray2, .bg-gray2{
+    background-color: var(--gray2);
+}
+.btn-gray3, .bg-gray3{
+    background-color: var(--gray3);
+}
+.btn-gray4, .bg-gray4{
+    background-color: var(--gray4);
+}
+/* on hover */
+.btn-blue13:hover{
+    background-color: var(--blue13);
+}
+.text-blue1{
+    color:var(--blue1);
+}
+.text-blue2{
+    color:var(--blue2);
+}
+.text-blue3{
+    color:var(--blue3);
+}
+.text-blue4{
+    color:var(--blue4);
+}
+.text-blue5{
+    color:var(--blue5);
+}
+.text-blue6{
+    color:var(--blue6);
+}
+.text-blue7{
+    color:var(--blue7);
+}
+.text-blue8{
+    color:var(--blue8);
+}
+.text-blue9{
+    color:var(--blue9);
+}
+.text-blue10{
+    color:var(--blue10);
+}
+.text-blue11{
+    color:var(--blue11);
+}
+.text-blue12{
+    color:var(--blue12);
+}
+.text-blue13{
+    color:var(--blue13);
+}
+.text-gray1{
+    color: var(--gray1);
+}
+.text-gray2{
+    color: var(--gray2);
+}
+.text-gray3{
+    color: var(--gray3);
+}
+.text-gray4{
+    color: var(--gray4);
+}
+.text-redmain{
+    color: var(--redmain);
+}
+.text-redlight{
+    color: var(--redlight);
+}
+.text-reddark{
+    color: var(--reddark);
+}
+.text-greenmain{
+    color:var(--greenmain)
+}
+.text-greendark{
+    color:var(--greendark)
+}
+.text-greenlight{
+    color:var(--greenlight)
+}
+textarea{
+    resize: none;
+}
+.card:hover{
+    cursor: pointer;
+    transition: all 0.5s;
+}
+
+table tbody tr:hover{
+    background-color: var(--blue13);
+    transition: all 0.5s;
+    cursor: pointer;
+}
+.border-blue1{
+    border:1px solid var(--blue1)
+}
+.border-blue2{
+    border:1px solid var(--blue2)
+}
+.border-blue3{
+    border:1px solid var(--blue3)
+}
+.border-blue4{
+    border:1px solid var(--blue4)
+}
+.border-blue5{
+    border:1px solid var(--blue5)
+}
+.border-blue6{
+    border:1px solid var(--blue6)
+}
+.border-blue7{
+    border:1px solid var(--blue7)
+}
+.border-blue8{
+    border:1px solid var(--blue8)
+}
+.border-blue9{
+    border:1px solid var(--blue9)
+}
+.border-blue10{
+    border:1px solid var(--blue10)
+}
+.border-blue11{
+    border:1px solid var(--blue11)
+}
+.border-blue12{
+    border:1px solid var(--blue12)
+}
+.border-blue13{
+    border:1px solid var(--blue13)
+}
+.border-blue14{
+    border:1px solid var(--blue14)
+}
+.border-blue15{
+    border:1px solid var(--blue15)
+}
+.border-transparentgreen1{
+    border: 1px solid var(--transparentgreen1);
+}
+.border-transparentgreen2{
+    border: 1px solid var(--transparentgreen2);
+}
+/* Dropdown Button */
+.dropbtn {
+    background-color:var(--white);
+    color: var(--black);
+    padding: 0.5rem 1rem;
+    font-size: 16px;
+    border: 1px solid transparent;
+    border-radius:5px;
+  }
+  
+  /* The container <div> - needed to position the dropdown content */
+  .onhoverdropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  /* Dropdown Content (Hidden by Default) */
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    background-color: var(--white);
+    border-radius: 5px;
+    z-index: 1;
+  }
+
+  /* Links inside the dropdown */
+  .dropdown-content a {
+    color: var(--gray1);
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    display: block;
+  }
+  
+  /* Change color of dropdown links on hover */
+  .dropdown-content a:hover {background-color: #ddd;}
+  
+  /* Show the dropdown menu on hover */
+  .onhoverdropdown:hover .dropdown-content {
+    display: block;
+    }
+  
+  /* Change the background color of the dropdown button when the dropdown content is shown */
+  .onhoverdropdown:hover .dropbtn {
+   background-color: var(--gray2);
+   }
+   .vr{
+    background-color: var(--gray3);
+    padding: 0rem 0.05rem;
+   }
+
+   .disable{
+    pointer-events: none;
+   }
+   iframe{
+    font-family: 'Inter', sans-serif;
+   }
+   .btn:focus{
+    outline:0;
+    box-shadow: none;
+    border: 0;
+   }
+   .dropdown-menu{
+    background-color: var(--white);
+    transition: all 0.2s;
+   }
+   /* input */
+   input{
+    border:0;
+    border-bottom:1px;
+    padding-left:10px;
+
+   }
+   input:focus{
+    outline: 0;
+    box-shadow: 0;
+    border: 0;
+   }
+  
+  .form__group {
+    position: relative;
+    padding: 25px 0 0;
+    margin-top: 10px;
+    width: 50%;
+  }
+  
+  .form__field {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--gray3);
+    outline: 0;
+    color: var(--black);
+    padding: 1px 0;
+    background: transparent;
+    transition: border-color 0.2s;
+  }
+  
+  .form__field::placeholder {
+    color: transparent;
+  }
+  
+  .form__field:placeholder-shown ~ .form__label {
+    cursor: text;
+    top: 25px;
+  }
+  
+  .form__label {
+    position: absolute;
+    top: 0;
+    display: block;
+    transition: 0.2s;
+    font-size: 1rem;
+    color: var(--gray2);
+  }
+  
+  .form__field:focus ~ .form__label {
+    position: absolute;
+    top: 0;
+    display: block;
+    transition: 0.2s;
+    font-size: 0.85rem;
+    color: var(--gray2);
+  }
+  
+  .form__field:focus {
+    padding-bottom: 6px;  
+    border-width: 3px;
+  }
+  
+  /* Reset input */
+  .form__field:required, .form__field:invalid {
+    box-shadow: none;
+  }
+  .accordion{
+    background-color: var(--white);
+  }
+  .accordion-button::after{
+    content: none;
+  }
+  .accordion-flush .accordion-item .accordion-button, .accordion-flush .accordion-item .accordion-button.collapsed {
+    border: 0;
+  }
+  .accordion-button:focus{
+    box-shadow: none;
+  }
+
+  .form-control:focus{
+    box-shadow: none;
+  }
+  .dialogue_parent{
+    position: relative;
+  }
+  .dialogue{
+    opacity: 0;
+    padding: 5px 5px;
+    border-radius: 2px;
+    box-shadow:1px 1px 3px var(--gray3) ;
+    position: absolute;
+    top:50%;
+    transform: translateY(-50%);
+    right:10%;
+    background-color: var(--white);
+    transition: all 0.3s;
+  }
+  .dialogue_parent:hover .dialogue{
+    opacity: 1;
+    right:100%;
+  }

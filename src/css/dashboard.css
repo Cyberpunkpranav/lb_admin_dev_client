@@ -1,0 +1,19 @@
+.activitylog_slider{
+    transition: all 0.3s;
+}
+.activitylog{
+    background-color: var(--white);
+    transition: all 0.3s;
+}
+.activitylog:hover{
+background-color: var(--blue13);
+}
+.activitylog_icon{
+    opacity: 0;
+    padding-left: 0;
+    transition: all 0.3s;
+}
+.activitylog:hover .activitylog_icon{
+    opacity:1;
+    padding-left: 1rem;
+}

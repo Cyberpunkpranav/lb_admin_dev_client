@@ -1,0 +1,57 @@
+.admin .card{
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.admin .card:hover{
+    box-shadow: 5px 5px 5px 0px #f2f2f2;
+}
+
+.blogs .image_holder{
+    height:10rem;
+}
+.admin_blogs .card_image{
+    height: 15rem;
+    object-fit: cover;
+}
+@media screen and (max-width:375px) {
+    .admin_blogs .card{
+        height: max-content;
+    }
+    .admin h4{
+        font-size: 1rem;
+    }
+    .admin p{
+        font-size: 0.75rem;
+    }
+    .admin_blogs h4{
+        font-size: 1rem;
+    }
+
+    .admin_blogs h6{
+        font-size: 0.8rem;
+    }
+    .admin_blogs p{
+        font-size: 0.75rem;
+    }
+    .admin_blogs .icons{
+        width:1rem;
+    }
+    .admin_blogs .card .icons{
+        width:2rem;
+    }
+    .btn{
+        padding: 0.2rem;
+        font-size:0.75rem;
+    }
+    .form-control{
+        padding:0.25rem;
+        font-size: 0.85rem;
+    }
+    .admin_blogs .btn-blue15{
+        margin-right:0.1rem;
+    }
+    select{
+        padding: 0;
+    }
+
+}

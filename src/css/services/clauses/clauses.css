@@ -1,0 +1,18 @@
+/* .updateall{
+    z-index: 2200;
+} */
+.clausesection{
+    min-width:100%;
+}
+.updateclausesection .nav-pills .nav-link{
+    background-color: transparent;
+    color: var(--gray2);
+    border-radius: 0;
+    border-bottom: 1px solid transparent;
+}
+.updateclausesection .nav-pills .nav-link.active{
+    background-color: transparent;
+    color: var(--black);
+    border-radius: 0;
+    border-bottom: 1px solid var(--black);
+}
