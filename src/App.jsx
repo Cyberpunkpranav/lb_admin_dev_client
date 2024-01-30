@@ -1,8 +1,14 @@
-import { lazy,Suspense, useEffect,useState} from "react";
+import { lazy,Suspense, useEffect,useState,useContext,createContext} from "react";
 import { Routes, Route } from "react-router-dom";
+import { Get_permissions_by_role_id } from "./api/get_apis";
+import { useQuery } from "@tanstack/react-query"; 
+import Cookies from "js-cookie";
 import './utils/notiflix'
 import './css/checkbox.css'
+import './css/loader.css'
+import { decryptNumber } from "./security/crypto";
 
+const Permissions  = createContext() 
 //apis
 // import { Non_user_Access } from "./api/get_apis";
 const Layout = lazy(()=>import('./components/layout'))
@@ -31,20 +37,37 @@ const AdminUpdateSubsection = lazy(()=>import('./components/services/acts-and-ru
 const AdminNewClause = lazy(()=>import('./components/services/acts-and-rules/acts/clauses/new_clause'))
 const Users = lazy(()=>import('./components/users/users'))
 const UpdateUser = lazy(()=>import('./components/users/update_user'))
-const PermissionsUser = lazy(()=>import('./components/users/permissions'))
+const Roles = lazy(()=>import('./components/roles/roles'))
+const EditRole = lazy(()=>import('./components/roles/edit_role'))
+
+const Keywords = lazy(()=>import('./components/services/libraries/clauses/keyword_management/keywords'))
 //Not Found
 const NotFound = lazy(()=>import('./components/not_found'))
 
 function App(){
-  // const Access_token = async()=>{
-  //   const data = await Non_user_Access()
-  //   Cookies.set('accessToken',data.data.access_token)
-  // }
+  const encrypterd_role_id = Cookies.get('role_id')
+  const role_id = decryptNumber(encrypterd_role_id)
+  const permissions = async()=>{
+    const data = await Get_permissions_by_role_id(role_id)
+    return data.data
+  }
+  const { data:permission_data } = useQuery(
+    { 
+    queryKey: ["permissions",role_id],
+     queryFn:permissions,
+    }) 
+    // useEffect(()=>{
+    //   if(permission_data!==undefined){
+    //     setpermissions(permission_data)
+    //   }
+    // },[permission_data])
+
   // useEffect(()=>{
   //   Access_token()  
   // },[])
   return(
     <Suspense fallback={<div className="text-charcoal75 fs-6 fw-bold text-center"> {" "} loading..{" "} </div>} >
+    <Permissions.Provider value={permission_data}>
     <Routes>
       <Route path='login' element={<Login/>}/>
       <Route path='signup' element={<Signup/>}/>
@@ -68,15 +91,19 @@ function App(){
       <Route path='Admin/services/acts-and-rules/acts/:act/:chapter/:section/subsection/update' element={<AdminUpdateSubsection/>}/>
       <Route path='Admin/services/acts-and-rules/acts/:act/:chapter/:section/subsection/clause/new' element={<AdminNewClause/>}/>
       <Route path='Admin/users' element={<Users/>}/>
-      <Route path='Admin/users/update/:id' element={<UpdateUser/>} />
-      <Route path='Admin/users/permissions/:id' element={<PermissionsUser/>} />
+      <Route path='Admin/users/update/:id/:role_id' element={<UpdateUser/>} />
+      <Route path="Admin/users/roles" element={<Roles/>}/>
+      <Route path="Admin/users/roles/:id" element={<EditRole/>}/>
+      <Route path="Admin/clause/keywords_management" element={<Keywords/>}/>
       </Route>
       </Route> 
       <Route path="*" element={<NotFound/>}/>
       </Route>
     </Routes>
+    </Permissions.Provider>
     </Suspense> 
   )
 }
 
 export default App;
+export {Permissions}

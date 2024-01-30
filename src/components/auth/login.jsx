@@ -10,15 +10,13 @@ import { encryptNumber,encryptString } from '../../security/crypto';
 import { useQuery } from '@tanstack/react-query';
 import '../../css/auth/login.css'
 
+
+
 const Login = () => {
     const navigate = useNavigate()
     const[load,setload]=useState(false)
-    const googlecreds = {
-        username:'',
-        email:'',
-        email_verified:'',
-        password:''
-      }
+    const[usequery,setusequery] =useState(false)
+
       const [creds,setcreds]=useState({
         username:'',
         password:'',
@@ -35,17 +33,20 @@ const Login = () => {
           axios.post(`/api/admin/auth/login`,creds).then((response)=>{
             if(response.data.status){
               toast.success(response.data.message);
+              setusequery(true)
               let user_id = encryptNumber(response.data.data.id)
               let senior_user_id = response.data.data.senior_user_id?encryptNumber(response.data.data.senior_user_id):""
               let role_id = encryptNumber(response.data.data.role_id)
               Cookies.set('accessToken',response.data.access_token)
               Cookies.set('username',response.data.data.username)
               Cookies.set('designation',response.data.data.designation)
+              Cookies.set('website_ids',response.data.data.website_ids)
               Cookies.set('role_id',role_id)
               Cookies.set('user_id',user_id)
               Cookies.set('senior_user_id',senior_user_id)
               setTimeout(() => {
                 navigate('/Admin/dashboard')
+                window.location.reload()
               }, 1000);
             }else{
               toast.error(response.data.message);
@@ -56,12 +57,16 @@ const Login = () => {
           setload(false)
           toast.error(e.message);
         }
+        return true
     }
+
     const { isLoading, isFetching, isError, data , error } = useQuery(
       { 
-      queryKey: ["login_info",data!==undefined ? data.data.id:""],
+      queryKey: ["login"],
        queryFn:login,
+       enabled:usequery
       })  
+
   return (
     <div className="container mainapp align-items-center d-flex justify-content-center">
     <div className="row align-items-center p-0 m-0">

@@ -125,6 +125,28 @@ try {
 
 return res
 }
+export const Add_clause_keywordCombinations = async(Data)=>{
+    let data;
+    try {
+        await axios.post(`/api/admin/features/clause/clause_alternates/keyword_combinations/add`,Data).then((response)=>{
+            data = response
+        })  
+    } catch (error) {
+        toast.error(error.message)
+    }
+    return data
+}
+export const Update_clause_keywordCombinations = async(Data)=>{
+    let data;
+    try {
+        await axios.post(`/api/admin/features/clause/clause_alternates/keyword_combinations/update`,Data).then((response)=>{
+            data = response
+        })  
+    } catch (error) {
+        toast.error(error.message)
+    }
+    return data
+}
 export const Add_Clause_alternate=async(data)=>{
     let res;
 await axios.post('/api/admin/services/libraries/clause/alternate/new',data).then((response)=>{
@@ -132,6 +154,58 @@ await axios.post('/api/admin/services/libraries/clause/alternate/new',data).then
 })
 return res
 } 
+
+export const Update_Clause_Alternate  = async(Data)=>{
+    let data;
+    try {
+await axios.post(`/api/admin/services/libraries/clauses/clause_alternates/update`,Data).then((response)=>{
+            data = response
+       }).catch((e)=>{
+        toast.error(e.message)
+       }) 
+    } catch (error) {
+        toast.error(error)
+    }
+
+   return data
+}
+export const Update_Clause_Alternate_Catergory  = async(Data)=>{
+    let data;
+    try {
+await axios.post(`/api/admin/services/libraries/clauses/clause_alternates/clause_alternate_category/update`,Data).then((response)=>{
+            data = response
+       }).catch((e)=>{
+        toast.error(e.message)
+       }) 
+    } catch (error) {
+        toast.error(error)
+    }
+
+   return data
+}
+export const Add_New_Keyword  =async (data)=>{
+    let res;
+    try {
+        Notiflix.Loading.dots({
+            backgroundColor:'#ffffff79',
+            svgColor:'#4B82FB',
+            svgSize:'100px'
+          })
+         await axios.post('/api/admin/features/clause/keyword/add',data).then((response)=>{
+            res = response
+        }).catch((e)=>{
+            Notiflix.Loading.remove()
+            toast.error(e.message)
+        }).finally(()=>{
+            Notiflix.Loading.remove()
+        })
+    } catch (error) {
+        Notiflix.Loading.remove()
+        toast.error(error.message)
+    }
+
+    return res
+  }
 export const Add_New_clause  =async (data)=>{
     let res;
     try {

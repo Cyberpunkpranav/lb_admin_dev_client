@@ -3,10 +3,9 @@ import {Navigate, Outlet, useLocation } from 'react-router-dom'
 import Cookies from 'js-cookie'
 const Websites = lazy(()=>import('../websites'))
 const Require_website = () => {
-    const location =useLocation()
-    let website = Cookies.get('website')
+    let website_id = Cookies.get('website_id')
   return (
-    website?<Outlet/>:<Websites/>
+    website_id?<Outlet/>:<Websites/>
   )
 }
 export default Require_website

@@ -115,8 +115,6 @@ const Blogs = () => {
     useEffect(() => {
       Fetch()
   }, [data])
-    // console.log(total_count)
-    console.log(blogs);
   return (
     <div className="container admin_blogs mt-4 text-dark position-relative">
       <nav aria-label="breadcrumb">

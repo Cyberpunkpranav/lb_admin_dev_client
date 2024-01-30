@@ -82,7 +82,6 @@ body::-webkit-scrollbar-thumb:hover {
 .scroll {
     padding: 0px;
     overflow-x: auto;
-     white-space: nowrap;
     height: max-content;
     flex-wrap:nowrap;
 }
@@ -128,10 +127,10 @@ align-items: center;
 }
 .cursor-drag{
     cursor: grab;
-    border:1px solid transparent;
+   border:1px solid transparent;
 }
 .cursor-drag:hover{
-    border:1px solid var(--blue1);
+   border:1px solid var(--blue1);
     border-radius: 5px;
 }
 .cursor-drop{
@@ -168,6 +167,10 @@ color: var(--gray1);
     z-index: 1 !important;
     transition: all 0.2s;
 }
+.table{
+   --bs-table-bg:inherit;
+   --bs-table-color:inherit;
+}
 /* .btn:focus {
     color:var(--black);
     background-color: var(--blue1);
@@ -202,60 +205,78 @@ color: var(--gray1);
     background-color:initial;  
 } */
 .btn-blue15,.bg-blue15{
+    color: var(--blue10);
     background-color: var(--blue15);
 }
 .btn-blue14,.bg-blue14{
+    color: var(--blue10);
     background-color: var(--blue14);
 }
 .btn-blue13,.bg-blue13{
+    color: var(--blue10);
     background-color: var(--blue13);
 }
 .btn-blue12,.bg-blue12{
+    color: var(--blue10);
     background-color: var(--blue12);
 }
 .btn-blue11,.bg-blue11{
+    color: var(--blue8);
     background-color: var(--blue11);
 }
 .btn-blue10,.bg-blue10{
+    color: var(--blue8);
     background-color: var(--blue10);
 }
 .btn-blue9,.bg-blue9{
+    color: var(--blue5);
     background-color: var(--blue9);
 }
 .btn-blue8,.bg-blue18{
+    color: var(--blue5);
     background-color: var(--blue8);
 }
 .btn-blue7,.bg-blue7{
+    color: var(--blue5);
     background-color: var(--blue7);
 }
 .btn-blue6,.bg-blue6{
+    color: var(--blue5);
     background-color: var(--blue6);
 }
 .btn-blue5,.bg-blue5{
+    color: var(--blue1);
     background-color: var(--blue5);
 }
 .btn-blue4,.bg-blue4{
+    color: var(--blue1);
     background-color: var(--blue4);
 }
 .btn-blue3,.bg-blue3{
+    color: var(--blue1);
     background-color: var(--blue3);
 }
 .btn-blue2,.bg-blue2{
     background-color: var(--blue2);
 }
 .btn-blue1,.bg-blue1{
+    color: var(--blue1);
     background-color: var(--blue1);
 }
 .btn-white,.bg-white{
+    color: var(--black);
     background-color: var(--white);
 }
 .btn-greendark,.bg-greendark{
+    color: var(--greenlight);
     background-color: var(--greendark);
 }
 .btn-greenmain,.bg-greenmain{
+    color: var(--greenlight);
     background-color: var(--greenmain);
 }
 .btn-greenlight,.bg-greenlight{
+    color: var(--greendark);
     background-color: var(--greenlight);
 }
 .btn-reddark,.bg-reddark{
@@ -382,8 +403,32 @@ color: var(--gray1);
 .text-greenlight{
     color:var(--greenlight)
 }
-textarea{
-    resize: none;
+.text-orangemain{
+    color:var(--orangemain)
+}
+.text-orangedark{
+    color:var(--orangedark)
+}
+.text-orangelight{
+    color:var(--orangelight)
+}
+.text-transparentgreen1{
+    color:var(--transparentgreen1)
+}
+.text-transparentgreen2{
+    color:var(--transparentgreen2)
+}
+.text-transparentorange1{
+    color:var(--transparentorange1)
+}
+.text-transparentorange2{
+    color:var(--transparentorange2)
+}
+.text-transparentred1{
+    color:var(--transparentred1)
+}
+.text-transparentred2{
+    color:var(--transparentred2)
 }
 .card:hover{
     cursor: pointer;
@@ -395,56 +440,102 @@ table tbody tr:hover{
     transition: all 0.5s;
     cursor: pointer;
 }
+.border-one{
+    border-width: 1px;
+}
 .border-blue1{
-    border:1px solid var(--blue1)
+   border-color:var(--blue1) !important
 }
 .border-blue2{
-    border:1px solid var(--blue2)
+   border-color:var(--blue2)
 }
 .border-blue3{
-    border:1px solid var(--blue3)
+   border-color:var(--blue3)
 }
 .border-blue4{
-    border:1px solid var(--blue4)
+   border-color:var(--blue4)
 }
 .border-blue5{
-    border:1px solid var(--blue5)
+   border-color:var(--blue5)
 }
 .border-blue6{
-    border:1px solid var(--blue6)
+   border-color:var(--blue6)
 }
 .border-blue7{
-    border:1px solid var(--blue7)
+   border-color:var(--blue7)
 }
 .border-blue8{
-    border:1px solid var(--blue8)
+   border-color:var(--blue8)
 }
 .border-blue9{
-    border:1px solid var(--blue9)
+   border-color:var(--blue9)
 }
 .border-blue10{
-    border:1px solid var(--blue10)
+   border-color:var(--blue10)
 }
 .border-blue11{
-    border:1px solid var(--blue11)
+   border-color:var(--blue11)
 }
 .border-blue12{
-    border:1px solid var(--blue12)
+   border-color:var(--blue12)
 }
 .border-blue13{
-    border:1px solid var(--blue13)
+   border-color:var(--blue13)
 }
 .border-blue14{
-    border:1px solid var(--blue14)
+   border-color:var(--blue14)
 }
 .border-blue15{
-    border:1px solid var(--blue15)
+   border-color:var(--blue15)
+}
+.border-redmain{
+    border-color:var(--redmain)
+}
+.border-redlight{
+    border-color:var(--redlight)
+}
+.border-reddark{
+    border-color:var(--reddark)
+}
+.border-greenmain{
+    border-color:var(--greenmain)
+}
+.border-greenlight{
+    border-color:var(--greenlight)
+}
+.border-greendark{
+    border-color:var(--greendark)
+}
+.border-transparentred1{
+    border-color:var(--transparentred1);
+}
+.border-transparentred2{
+    border-color:var(--transparentred2);
 }
 .border-transparentgreen1{
-    border: 1px solid var(--transparentgreen1);
+    border-color:var(--transparentgreen1);
 }
 .border-transparentgreen2{
-    border: 1px solid var(--transparentgreen2);
+    border-color:var(--transparentgreen2);
+}
+.border-orangemain{
+    border-color:var(--orangemain)
+}
+.border-orangelight{
+    border-color:var(--orangelight)
+}
+.border-orangedark{
+    border-color:var(--orangedark)
+}
+.border-transparentorange1{
+    border-color:var(--transparentorange1);
+}
+.border-transparentorange2{
+    border-color:var(--transparentorange2);
+}
+
+.border-dashed {
+    border-style: dashed;
 }
 /* Dropdown Button */
 .dropbtn {
@@ -518,12 +609,15 @@ table tbody tr:hover{
     border:0;
     border-bottom:1px;
     padding-left:10px;
-
    }
+
    input:focus{
     outline: 0;
     box-shadow: 0;
-    border: 0;
+    border-top: 0;
+    border-left: 0;
+    border-right:0;
+    border-bottom:1px solid
    }
   
   .form__group {
@@ -573,7 +667,8 @@ table tbody tr:hover{
   
   .form__field:focus {
     padding-bottom: 6px;  
-    border-width: 3px;
+    border-width: 1px;
+    border-color: var(--blue1) !important;
   }
   
   /* Reset input */
@@ -614,4 +709,17 @@ table tbody tr:hover{
   .dialogue_parent:hover .dialogue{
     opacity: 1;
     right:100%;
+  }
+  .input_border_bottom{
+    border-bottom: 1px solid;
+    border-color: transparent;
+  }
+  .input_border_bottom:hover{
+    border-color: var(--blue1);
+  }
+  .input_border_bottom:focus{
+    border-color: var(--blue1) !important;
+  }
+  button:disabled{
+    cursor: not-allowed;
   }

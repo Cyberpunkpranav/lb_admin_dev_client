@@ -76,7 +76,6 @@ const New_blog = () => {
         :setdata(prevStatus => ({...prevStatus , status:0}));
     
       };
-    console.log(data);
   return (
     <div className='container-fluid mt-4 position-relative'>
       <nav aria-label="breadcrumb">

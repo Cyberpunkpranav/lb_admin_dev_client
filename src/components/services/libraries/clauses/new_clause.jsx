@@ -1,10 +1,10 @@
 import React ,{useState,useEffect, Fragment} from 'react'
-import {Link} from 'react-router-dom'
+import {Link, Navigate, useNavigate} from 'react-router-dom'
 import { Add_New_clause } from '../../../../api/post_apis'
 import toast from 'react-hot-toast'
 
 const New_clause = () => {
-
+const navigate = useNavigate()
   const [data,setdata] = useState({
     search:'',
     limit:12,
@@ -23,6 +23,10 @@ const postdata = async()=>{
       clause_name:'',
       definition:''
     })
+    setTimeout(()=>{
+      navigate(`/Admin/services/libraries/clauses/update/${data.data.data.id}`)
+    },1000)
+  
   }else{
     toast.error(data.data.message)
   }
@@ -36,7 +40,7 @@ const postdata = async()=>{
       </div>
       <div className="row g-3 mt-4">
       <div className="col-12">
-      <div class="form__group field w-75">
+      <div class="form__group field w-100">
       <input type="input" class="form__field w-100" value={reqdata1.clause_name?reqdata1.clause_name:""} onChange={(e)=>setreqdata1(prevState=>({...prevState,clause_name:e.target.value}))} placeholder="Type Clause Name here..." required />
       <label for="name" class="form__label"> Clause Name</label>
       </div>

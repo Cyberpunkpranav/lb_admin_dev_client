@@ -10,7 +10,7 @@ const Layout = () => {
         <div className="">
         <Sidebar/>
         </div>
-        <div className="scroll" style={{width:'100%',maxHeight:'95vh'}}>
+        <div className="scroll position-relative" style={{width:'100%',maxHeight:'95vh'}}>
         <Outlet/>
         </div>
       </div>

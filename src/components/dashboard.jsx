@@ -1,11 +1,14 @@
 import Cookies from 'js-cookie'
-import React, { useRef } from 'react'
+import React, { useContext, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import '../css/dashboard.css'
+import { Permissions } from '../App'
+
 const Dashboard = () => {
+  const permissions = useContext(Permissions) 
     const activitylog_ref = useRef(null)
     const designation = Cookies.get('designation')
-
+  console.log(permissions.data);
   return (
     <div className="container mt-4" style={{minHeight:'100vh'}}>
             <nav aria-label="breadcrumb">
@@ -16,12 +19,11 @@ const Dashboard = () => {
         <div className="d-flex justify-content-between">
         <div className="col-11">
         <div className="row p-0 m-0">
-        <div className="col-4">
+        <div className={`col-4 d-${permissions.data.view_users==1?'block':"none"}`}>
         <div className="card border-0 shadow-sm bg-blue13 p-2">
         <h5 className='text-blue1 fw-normal'>Users</h5>
         <h4>10</h4>
         </div>
- 
         </div>
         <div className="col-4">
         <div className="card border-0 shadow-sm bg-blue13 p-2">
@@ -47,7 +49,7 @@ const Dashboard = () => {
             </div>
             <div className="col-12 ">
             <div className="dialogue_parent">
-            <i class='bx bx-line-chart cursor-pointer fs-1 rounded-circle p-2 shadow-sm bg-transparentgreen1  border-primary text-blue1 activitylog_opener' onClick={()=>activitylog_ref.current.style.width='40%'}></i>
+            <i class='bx bx-line-chart cursor-pointer fs-1 rounded-circle p-2 shadow-sm bg-transparentgreen1 border-primary text-blue1 activitylog_opener' onClick={()=>activitylog_ref.current.style.width='40%'}></i>
             <div className='dialogue text-end'>Activity</div>
             </div>
             </div>

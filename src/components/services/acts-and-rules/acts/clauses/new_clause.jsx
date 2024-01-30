@@ -6,7 +6,6 @@ import Notiflix from 'notiflix'
 import CK_Editor from '../../../../../text_editor/ck_editor'
 const New_clauses = () => {
 const {state} = useLocation()
-console.log(state);
 if(state==undefined || state.Data ==undefined){
   window.history.back()
 }

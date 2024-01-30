@@ -3,7 +3,7 @@
     <div className="d-flex">
 <div class="checkbox-wrapper-12">
 <div class="cbx">
-  <input id="cbx-12" checked={props.value==1?true:false} onChange={()=>{props.value==1?props.onChange(0):props.onChange(1)}} value={props.value?props.value:''} type="checkbox"/>
+  <input id="cbx-12" disabled={props.disabled==1?true:false} checked={props.value==1?true:false} onChange={()=>{props.value==1?props.onChange(0):props.onChange(1)}} value={props.value?props.value:''} type="checkbox"/>
   <label for="cbx-12"></label>
   <svg width="15" height="14" viewbox="0 0 15 14" fill="none">
     <path d="M2 8.36364L6.23077 12L13 2"></path>

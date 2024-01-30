@@ -4,6 +4,9 @@
 .clausesection{
     min-width:100%;
 }
+.updateclausesection{
+    min-height:150vh;
+}
 .updateclausesection .nav-pills .nav-link{
     background-color: transparent;
     color: var(--gray2);
@@ -14,5 +17,18 @@
     background-color: transparent;
     color: var(--black);
     border-radius: 0;
-    border-bottom: 1px solid var(--black);
+    border-bottom: 1px solid var(--blue1);
+}
+.clause_nature .active{
+    border: 0;
+    color: var(--blue1) !important;
+    background-color: var(--blue13) !important;
+}
+.clause_nature .active input{
+    color: var(--blue1) !important;
+    background-color: var(--blue13) !important;
+}
+.clause_nature .active input:focus{
+    color: var(--blue1) !important;
+    background-color: var(--white) !important;
 }

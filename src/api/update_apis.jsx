@@ -169,6 +169,32 @@ export const Update_Clause  = async(id,Data)=>{
 
    return data
 }
+
+
+export const Update_Clause_keyword  = async(id,Data)=>{
+    let data;
+    try {
+        Notiflix.Loading.dots({
+            backgroundColor:'#ffffff79',
+            svgColor:'#4B82FB',
+            svgSize:'100px'
+          })
+        await axios.put(`/api/admin/features/clause/keyword/update/${id}`,Data,{
+        }).then((response)=>{
+            data = response
+       }).catch((e)=>{
+        Notiflix.Loading.remove()
+        toast.error(e.message)
+       }).finally(()=>{
+        Notiflix.Loading.remove()
+       })   
+    } catch (error) {
+        toast.error(error)
+    }
+
+   return data
+}
+
 export const Update_SubClause  = async(id,Data)=>{
     let data;
     try {

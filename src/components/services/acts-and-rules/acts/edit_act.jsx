@@ -44,7 +44,6 @@ const Edit_Act = () => {
         }else{
           toast.error(res.data.message)
         }
-        console.log(res)
       }
 
   return (

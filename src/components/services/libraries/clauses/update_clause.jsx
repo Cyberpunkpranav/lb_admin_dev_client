@@ -1,27 +1,46 @@
-import React, { useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import Editor from 'ckeditor5-custom-build/build/ckeditor';
-import Draggable_scenerios from './draggable_scenerios';
-import Droppable_Active_scenerois from './droppable_active_scenerios';
-import Droppable_Inactive_scenerois from './droppable_inactive_scenerios';
-import { Get_Clause_by_id,Get_Clause_alt_by_id,Get_Clause_alt_ctgry_by_id } from '../../../../api/get_apis'
-import { Update_Clause,Add_Clause_alternate,Switch_Clause_alternates } from '../../../../api/post_apis';
+import Draggable_keywords from './draggable_keywords';
+import Droppable_keywords from './droppable_keywords';
+import { Get_Clause_by_id,Get_Clause_alt_by_id,Get_Clause_alt_ctgry_by_id,Get_clause_keywords,Get_clause_keywordCombinations } from '../../../../api/get_apis'
+import { Update_Clause,Add_Clause_alternate,Switch_Clause_alternates,Update_Clause_Alternate_Catergory,Update_Clause_Alternate,Add_clause_keywordCombinations,Update_clause_keywordCombinations} from '../../../../api/post_apis';
 import { Delete_Clause_alternate } from '../../../../api/delete_apis';
 import {Link,useParams} from 'react-router-dom'
 import Notiflix from 'notiflix'
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from 'react-hot-toast';
 import '../../../../css/services/clauses/clauses.css'
 import '../../../../css/loader.css'
 
 const Update_clause = () => {
     const {id} = useParams()
-    let clauses=[]
-    const [clauseloading,setclauseloading] = useState(false)
+    const queryclient = useQueryClient()
+    const [keyword_combinations,setkeyword_combinations] = useState([])
+    const [category,setcategory] = useState('')
+    const [categories,setcategories] = useState('')
     const [index,setindex] = useState(0)
+    const [ctgryindex,setctgryindex] = useState(0)
     const [clause,setclause] = useState([])
     const [clause_alt,setclause_alt] = useState([])
-    const [clause_alt_ctgry,setclause_alt_ctgry] = useState([])
+    const [clause_alt_ctrgy,setclause_alt_ctrgy] = useState([])
+    const [new_clause_alt,setnew_clause_alt] = useState({
+        clause_id:Number(id),
+        nature:'',
+        explaination:'',
+        rationale:'',
+        keyword:''
+      }
+    ) 
+    const [clause_alt_id,setclause_alt_id] = useState('')
+    const New_clause_alt_category_obj = {
+      clause_id:Number(id),
+      clause_alt_id:clause_alt_id,
+      html:'',
+      category:category,
+      keyword:''
+    }
+    // clause editor configs
     const editorConfiguration = {
       toolbar: {
         items: [
@@ -41,34 +60,127 @@ const Update_clause = () => {
       shouldNotGroupWhenFull: false
       }
     }
-
-    const get_clause = async()=>{
-        const clause = await Get_Clause_by_id(id)
-        return clause
+    const get_keywords = async()=>{
+      const data = await Get_clause_keywords()
+      for (let i=0;i<data.data.data.length;i++){
+        data.data.data[i].prefix = ''
+        data.data.data[i].suffix = ''
+      }
+        return data.data.data        
     }
-    const { isLoading:isLoading1, isFetching:isFetching1,isFetched, isError:isError1, data:clause_data , error:error1 } = useQuery(
+    const { isLoading:keyword_loading,isFetching:keyword_fetching, isError, data:keyword_data , error } = useQuery(
+    { 
+    queryKey: ["keywords_list"],
+     queryFn:get_keywords,
+    })
+    const get_clause = async()=>{
+      const QueryData = queryclient.getQueryData(["clause",id]);
+      if(QueryData==null||QueryData.length==0){
+        const clause = await Get_Clause_by_id(id)
+        return clause.data.data
+      }else{
+        return QueryData
+      }
+    }
+    const { isLoading:isLoading1, isFetching:isFetching1, isError:isError1, data:clause_data , error:error1 } = useQuery(
     { 
     queryKey: ["clause",id],
      queryFn: get_clause ,
     })
     const get_clause_alt = async()=>{
-        const clause_alt = await Get_Clause_alt_by_id(clause_data.data.id)
-        return clause_alt
+      const QueryData = queryclient.getQueryData(["clause_alt",clause_data!==undefined ? clause_data.id:""]);
+      if(QueryData==null||QueryData.length==0){
+        const clause_alt = await Get_Clause_alt_by_id(id)
+        setclause_alt_id(clause_alt.data.data[0].id)
+        return clause_alt.data.data
+       }else{
+         setclause_alt_id(QueryData[0].id)
+         return QueryData
+       }
+  }
+    const { isLoading:isLoading2, isFetching:isFetching2, isError:isError2, data:clause_alt_data , error:error2 } = useQuery({ 
+      queryKey: ["clause_alt",clause_data!==undefined ? clause_data.id:""],
+      queryFn:clause_data!==undefined ? get_clause_alt:"",
+    })
+    const get_clause_alt_ctgry = async()=>{
+      const QueryData = queryclient.getQueryData(["clause_alt_ctrgy",id,clause_alt_id]);
+      if(QueryData==null||QueryData.length==0){
+        const data = await Get_Clause_alt_ctgry_by_id(id,clause_alt_id)
+        setcategory(data.data.data[0].category)
+        let arrctrgy = []
+        for(let i=0;i<data.data.data.length;i++){
+          arrctrgy.push(data.data.data[i].category)
+        }
+        const uniqueArray = [...new Set(arrctrgy)];
+        setcategories(uniqueArray)
+        return data.data.data
+      }else{
+        setcategory(QueryData[0].category)
+        let arrctrgy = []
+        for(let i=0;i<QueryData.length;i++){
+          arrctrgy.push(QueryData[i].category)
+        }
+        const uniqueArray = [...new Set(arrctrgy)];
+        setcategories(uniqueArray)
+        return QueryData
+      }
+
+  
     }
-    const { isLoading:isLoading2, isFetching:isFetching2, isError:isError2, data:clause_alt_data , error:error2 } = useQuery(
-      { 
-      queryKey: ["clause_alt",clause_data!==undefined ? clause_data.data.id:""],
-       queryFn:get_clause_alt,
-      })
-    const  get_clause_alt_ctgry = async()=>{
-      const clause_alt_ctgry = await Get_Clause_alt_ctgry_by_id(id)
-      return clause_alt_ctgry
+    const{isLoading:isLoading3,isFetching:isFetching3,data:clause_alt_ctgry_data} = useQuery({ 
+    queryKey: ["clause_alt_ctrgy",id,clause_alt_id],
+     queryFn: get_clause_alt_ctgry,
+    })
+    const Get_keyword_Combination = async()=>{
+      const QueryData = queryclient.getQueryData(["keyword_combinations",id,clause_alt_id,category]);
+      if(QueryData==undefined || QueryData==null || QueryData.length==0){
+        const Data = await Get_clause_keywordCombinations(id,clause_alt_id,category)
+        console.log(Data);
+        return Data.data.data
+      }else{
+        return QueryData
+      }
     }
-    const { isLoading:isLoading3, isFetching:isFetching3, isError:isError3, data:clause_alt_ctgry_data , error:error3 } = useQuery(
-      { 
-      queryKey: ["clause_alt_ctgry",clause_data!==undefined ? clause_data.data.id:""],
-       queryFn:get_clause_alt_ctgry,
-      })  
+    const{isLoading:isLoading4,isFetching:isFetching4,data:keywordcombinations_data} = useQuery({ 
+        queryKey: ["keyword_combinations",id,clause_alt_id,category],
+         queryFn: Get_keyword_Combination,
+    })
+    const AddKeyword_combinations=async()=>{
+      let obj = {
+        clause_id :id,
+        clause_alt_id: clause_alt_id,
+        category:category,
+        keyword_combinations:clause.keyword_combinations
+      }
+        const Data = await Add_clause_keywordCombinations(obj)
+         if(Data.data.status ==true){
+          queryclient.setQueryData(["keyword_combinations",id,clause_alt_id,category],Data.data.data)
+         }else{
+          toast.error(Data.data.message)
+         }
+    }  
+    useEffect(()=>{
+      if (clause_data!=undefined) {
+        setclause(clause_data)
+      }
+    },[clause_data])
+
+    useEffect(()=>{
+      if (clause_alt_data!=undefined) {
+        setclause_alt(clause_alt_data)
+      }
+    },[clause_alt_data])
+
+    useEffect(()=>{
+      setclause_alt_ctrgy(clause_alt_ctgry_data) 
+    },[clause_alt_ctgry_data])
+
+    useEffect(()=>{
+      if(keywordcombinations_data!==undefined){
+        setkeyword_combinations(keywordcombinations_data)
+      }
+    },[keywordcombinations_data])
+
     const words_extraction = (word)=>{
       word = word.replaceAll(" ","-")
       word = word.replaceAll("(",'-')
@@ -99,29 +211,13 @@ const Update_clause = () => {
       word = word.replaceAll("-",'')
       return word
     }
-    useEffect(()=>{
-      if (clause_data && clause_data.data) {
-        setclause(clause_data.data)
-      }
-    },[clause_data])
-
-    useEffect(()=>{
-      if (clause_alt_data && clause_alt_data.data) {
-        setclause_alt(clause_alt_data.data)
-      }
-    },[clause_alt_data])
-    useEffect(()=>{
-      if (clause_alt_ctgry_data && clause_alt_ctgry_data.data) {
-        setclause_alt_ctgry(clause_alt_ctgry_data.data)
-      }
-    },[clause_alt_ctgry_data])
-    
     const Update = async()=>{
     Notiflix.Loading.arrows()
-        const Data = await Update_Clause(clauses)
+    const QueryData = queryclient.getQueryData(["clause",id]);
+        const Data = await Update_Clause(QueryData)
         if(Data.data.status==true){
           Notiflix.Loading.remove()
-          // getData()
+          get_clause()
           toast.success(Data.data.message)
           }else{
           Notiflix.Loading.remove()
@@ -130,12 +226,16 @@ const Update_clause = () => {
     }
     const Add_new_clause_alt = async()=>{
       Notiflix.Loading.dots()
-      const res = await Add_Clause_alternate(clause_alt)
+      const res = await Add_Clause_alternate(new_clause_alt)
       if(res.data.status==true){
         Notiflix.Loading.remove()
-       toast.success(res.data.message)
-      //  window.location.reload()
-      // getData()
+        if(clause_alt.length>0){
+          queryclient.setQueryData(["clause_alt",clause_data!==undefined ? clause_data.id:""],prevState=>([...prevState,res.data.data]))
+        }else{
+          queryclient.setQueryData(["clause_alt",clause_data!==undefined ? clause_data.id:""],[res.data.data])
+
+        }
+        toast.success(res.data.message)
       }else{
         Notiflix.Loading.remove()
         toast.error(res.data.message)
@@ -143,7 +243,6 @@ const Update_clause = () => {
     }
     const Switch_status = async(id,status)=>{
       const data = await Switch_Clause_alternates(id,status)
-      console.log(data);
       if(data.data.status==true){
         toast.success(data.data.message)
         setTimeout(()=>{
@@ -151,8 +250,7 @@ const Update_clause = () => {
         },1000)
       }else{
         toast.error(data.data.message)
-      } 
-      
+      }
     }
     const Delete_Clause_alt = async(id)=>{
       const data = await Delete_Clause_alternate(id)
@@ -181,94 +279,226 @@ const Update_clause = () => {
         {}
       );
     }
-
-    const handleDeleteScenerio= (index) => {
-      setclause((prevData) => {
-        const updatedScenerios = [...prevData.scenerios];
-        updatedScenerios.splice(index, 1);
-        return { ...prevData, scenerios: updatedScenerios };
-      });
-    };
-
-    if(clause&&clause.scenerios!==undefined&&typeof(clause.scenerios)=='string'){
-      clause.scenerios = JSON.parse(clause.scenerios)
+    const Update_clause_alt_category = async(data)=>{
+      const Data = await Update_Clause_Alternate_Catergory(data)
+      if(Data.data.status==true){
+        toast.success(Data.data.message)
+        queryclient.removeQueries({queryKey:["clause_alt_ctrgy",id,clause_alt_id],exact:true});
+        get_clause_alt_ctgry()
+      }else{
+        toast.error(Data.data.message)
+      }
     }
+    const update_clauseAlt =async(Data)=>{
+      const data = await Update_Clause_Alternate(Data)
+      if(data.data.status==true){
+        toast.success(data.data.message)
+      }else{
+        toast.error(data.data.message)
+      }
+    }
+  // its done and working fine to make combinations by keyword
+function GenerateCombinations() {
+  const combinations = [];
+  if(clause.keywords!==undefined&&clause.keywords!==null){
+  for (let i = 0; i < clause.keywords.length; i++) {
+    for (let j = i + 1; j < clause.keywords.length; j++) {
+      if(!clause.keywords[i].inactive_keywords.includes(clause.keywords[j].id) && !clause.keywords[j].inactive_keywords.includes(clause.keywords[i].id)){
+        const keyword1 = clause.keywords[i].keyword;
+        const keyword2 =  clause.keywords[j].keyword;
+        combinations.push(
+          { id: combinations.length + 1,
+            keyword1: keyword1,
+            keyword2: keyword2,
+            prefix:clause.keywords[i].prefix,
+            middle:'',
+            suffix:clause.keywords[i].suffix 
+          });
+          combinations.push(
+          { id: combinations.length + 1,
+            keyword1: keyword1,
+            keyword2: keyword2,
+            prefix:clause.keywords[i].prefix,
+            middle:'',
+            suffix:clause.keywords[i].suffix 
+          });
+      }
+    }
+  }
+  for(let i =0;i<clause.keywords.length;i++){
+    combinations.push({
+      id:clause.keywords[i].id,
+      keyword1:clause.keywords[i].keyword,
+      keyword2:'',
+      prefix:clause.keywords[i].prefix,
+      suffix:clause.keywords[i].suffix
+    })
+  }
+}
+console.log(combinations);
+const updateClause = {...clause,keyword_combinations:combinations}
+queryclient.setQueryData(["clause",id],updateClause)
+Update()
+}
 
-    if(clause)
-    console.log(clause_alt_ctgry);
+//JSX change functions
+const UpdateKeywordCombination = (keywordCombinationId,variable,value) => {
+  setkeyword_combinations((prevData) => { 
+        return {
+          ...prevData,
+          keyword_combinations: prevData.keyword_combinations.map((keywordObj) => {
+            if (keywordObj.id === keywordCombinationId) {
+              return {
+                ...keywordObj,
+                [variable]:value, // Update the specific properties you want to change
+              };
+            }
+            return keywordObj;
+          }),
+        };
+    });
+};
+const updateKC = async()=>{
+ const QueryData =  queryclient.getQueryData(["keyword_combinations",id,clause_alt_id,category])
+  const data =await Update_clause_keywordCombinations(QueryData)
+  if(data.data.status ==true){
+    toast.success(data.data.message)
+    queryclient.setQueryData(["keyword_combinations",id,clause_alt_id,category],data.data.data)
+  }else{
+    toast.error(data.data.message)
+  }
+}
+// console.log(clause); 
+// console.log(clause_alt);
+// console.log(clause_alt_ctrgy);
+console.log(keyword_combinations);
+
     return (
-    <section className='container mt-4'>
-      <nav aria-label="breadcrumb">
+      <>
+      <nav aria-label="breadcrumb position-fixed top-0 bg-white">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><Link to="/">Home</Link></li>
+        <li class="breadcrumb-item"><Link to="/Admin/dashboard">Home</Link></li>
         <li class="breadcrumb-item"><Link to="/Admin/services/libraries/clauses">Clauses</Link></li>
         <li class="breadcrumb-item active" aria-current="page">{clause&&clause.clause_name!==undefined&&clause.clause_name!==null?clause.clause_name:""}</li>
       </ol>
       </nav>
+    <section className='container overflow-scroll position-relative mt-4 update_clause_section'>
+     
       {
          isLoading1 || isFetching1 ? (
           <span class="loader"><h4 className='mb-5 pb-3'>LegalBuddy</h4></span>
         ):(
       <div className='container-fluid updateclausesection p-0 m-0 position-relative mt-4'>
+      <button className='col-12 pe-4 text-start text-blue1 bg-transparent d-flex justify-content-between py-2 ps-2 border-0 ' data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+        <p className='p-0 m-0'>Clause details and keywords</p> 
+        <i class='bx bxs-down-arrow'></i>        
+      </button>
+      <div className='collapse show' id='collapseExample'>
+
       <div className="row justify-content-between">
-      <div className="col-10">
-      <div className="form__group field">
-      <input maxLength={100} type="input" className="form__field w-100" value={clause&&clause.clause_name?clause.clause_name:""} onChange={(e)=>  setclause(prevState=>({...prevState,clause_name:e.target.value}))} placeholder="Type clause Name here..." name="name" id='name' required />
-      <span className='position-absolute end-0 bottom-0'>{clause&&clause.clause_name!==undefined&&clause.clause_name!==null?clause.clause_name.length:0}/100</span>
-      <label for="name" className="form__label"> Clause</label>
-      </div>
-      </div>
-      <div className="col-auto">
+              {/* Draggable keywords */}
+               <div className="col my-4">
+                <div className="row justify-content-between">
+                  <div className="col-auto">
+                  <p className='d-flex align-items-center p-0 m-0 text-gray2'>All keywords</p>
+                  </div>
+                  <div className="col-auto">
+                    <span className='text-gray2'>Total keywords : </span>
+                  <span className='badge text-greenmain fs-6 border-greenmain me-2 bg-transparentgreen1'>{keyword_data!==undefined?keyword_data.length:""}</span>
+                  </div>
+                </div>
+                 {
+                 keyword_loading || keyword_fetching ?(
+                     <div>getting keywords....</div>
+                 ):(
+                   <div className="row p-0 m-0 scroll mt-2">
+                     {
+                       keyword_data&&keyword_data.length!==0?(
+                         keyword_data.map((data,i)=>(
+                            <Draggable_keywords id = {data.id} prefix = {data.prefix} suffix = {data.suffix} keyword={data.keyword} inactive_keywords={data.inactive_keywords} setclause={setclause}/>
+                        ))
+                      ):(
+                        <p className='text-center py-2 text-gray2 fw-semibold'>no keywords</p>
+                      )
+                         }
+                   </div>
+
+                 )
+                 }
+               </div>
+              {/* Draggable keywords */}
+              <div className="col-auto">
       <div className="d-flex align-items-center justify-content-end cursor-pointer " onClick={()=>Update()}>
-      <span className='p-0 m-0 text-blue1'>Save & Update</span>
+      <span className='p-0 m-0 text-blue1'>Save clause details</span>
       <i className='bx bx-save fs-5 text-blue1'></i>
       </div>
       </div>
-      </div>
-
-      <div className="col-11 my-4">
+      <div className="col-12">
       <div className="form__group field w-100">
-      <textarea maxLength={1000} type="input" className="form__field pe-5" value={clause&&clause.definition?clause.definition:''} onChange={(e)=>setclause(prevState=>({...prevState,definition:e.target.value}))} />
-      <label for="name" className="form__label">Definition of {clause&&clause.clause_name?clause.clause_name:""}</label>
-      <span className='position-absolute end-0 bottom-0 mb-2'>{clause&&clause.definition!==undefined&&clause.definition!==null?clause.definition.length:0}/1000</span>
+      <input maxLength={100} type="input" className="form__field p-2 " value={clause&&clause.clause_name?clause.clause_name:""} 
+      onChange={(e)=>  setclause(prevState=>({...prevState,clause_name:e.target.value}))} 
+      onBlur={()=> queryclient.setQueryData(["clause",id],clause)}
+      placeholder="Type clause Name here..." name="name" id='name' required />
+      <span className='position-absolute end-0 bottom-0 me-4'>{clause&&clause.clause_name!==undefined&&clause.clause_name!==null?clause.clause_name.length:0}/100</span>
+      <label for="name" className="form__label"> Clause</label>
       </div>
       </div>
-      <div className="col-11 my-4"> 
+      </div>
+      
+      <div className="col-12 my-4">
       <div className="form__group field w-100">
-      <textarea maxLength={1000} type="input" className="form__field pe-5" value={clause&&clause.rationale?clause.rationale:''} onChange={(e)=>setclause(prevState=>({...prevState,rationale:e.target.value}))} />
-      <label for="name" className="form__label">Purpose of {clause&&clause.clause_name?clause.clause_name:""}</label>
-      <span className='position-absolute end-0 bottom-0 mb-2'>{clause&&clause.rationale!==undefined&&clause.rationale!==null?clause.rationale.length:0}/1000</span>
+      <textarea maxLength={1000} type="input" className="form__field pe-5 p-2" value={clause&&clause.definition?clause.definition:''} 
+      onChange={(e)=>setclause(prevState=>({...prevState,definition:e.target.value}))} 
+      onBlur={()=> queryclient.setQueryData(["clause",id],clause)}
+      />
+      <label for="name" className="form__label">Definition of {clause&&clause.clause_name?clause.clause_name.toLowerCase():""}</label>
+      <span className='position-absolute end-0 bottom-0 mb-2 me-4'>{clause&&clause.definition!==undefined&&clause.definition!==null?clause.definition.length:0}/1000</span>
       </div>
       </div>
-        <div className="col my-4">
-        <p className='d-flex align-items-center'>keywords<i class='bx cursor-pointer bxs-plus-circle fs-4 ms-2 text-blue1' onClick={()=>setclause(prevState=>({...prevState,scenerios:[...clause.scenerios,'']}))} ></i>  
-        </p>
-        {
-          clause.scenerios&&clause.scenerios!==undefined&&clause.scenerios.length!==0?(
-            clause.scenerios!==undefined && clause.scenerios.map((scenerio,i)=>(
-              <span className='me-2'>
-                {/* <input className='border-bottom text-black' onChange={(e)=>handleScenerioChange(i,e.target.value)} value={scenerio?scenerio:""}/> */}
-                <Draggable_scenerios index={i} scenerio={scenerio} setclause={setclause}/>
-                <i class='bx bx-x text-redmain cursor-pointer' onClick={() => handleDeleteScenerio(i)}></i>
-              </span>
-            ))
-          ):(
-            <p className='text-gray2'>no keywords</p>
-          )
-        
-        }
-        
+      <div className="col-12 my-4"> 
+      <div className="form__group field w-100">
+      <textarea maxLength={1000} type="input" className="form__field pe-5 p-2" value={clause&&clause.rationale?clause.rationale:''} 
+      onChange={(e)=>setclause(prevState=>({...prevState,rationale:e.target.value}))}
+      onBlur={()=> queryclient.setQueryData(["clause",id],clause)}
+      />
+      <label for="name" className="form__label">Purpose of {clause&&clause.clause_name?clause.clause_name.toLowerCase():""}</label>
+      <span className='position-absolute end-0 bottom-0 mb-2 me-4'>{clause&&clause.rationale!==undefined&&clause.rationale!==null?clause.rationale.length:0}/1000</span>
       </div>
+      </div>
+      <div className="row justify-content-between">
+        <div className="col-auto">
+        <p className='p-0 m-0 text-gray2'>Add keywords for <h6 className='text-blue1 d-inline p-0 m-0'>{clause&&clause.clause_name?clause.clause_name.toLowerCase():""} </h6><small className='text-redmain p-0 m-0'> &#40; *add minimum two keywords to generate combinations &#41;</small></p>
+        </div>
+        <div className="col-auto">
+        <span className='text-gray2'>Keywords added:</span><span className='bg-transparentgreen1 fs-6 badge text-greenmain'>{' '}{clause&&clause.keywords?clause.keywords.length:0}{' '}</span>
+        </div>
+      </div>
+      <div className="row justify-content-between mt-3 p-0 m-0 align-items-center">
+      <div className="col-9 ps-0">
+        <Droppable_keywords Data={clause} clause_name={clause&&clause.clause_name?clause.clause_name:""} setclause={setclause}/>
+      </div>
+      <div className="col-auto">
+        <button className='bg-blue13 text-blue1 border-0 px-2 py-1 rounded-pill' onClick={()=>GenerateCombinations()}>Generate Combinations</button>
+      </div>
+      </div>
+   
+      </div>
+      {/* clause approaches */}
       {
         isLoading2 || isFetching2 ? (
-          <div>getting clause alternatives...</div>
+          <div className='mt-4'>getting clause alternatives...</div>
         ):(
           <>
+          <button className='col-12 ps-2 pe-4 text-start d-flex justify-content-between text-blue1 bg-transparent mt-3 border-0 ' data-bs-toggle="collapse" data-bs-target="#collapseApproaches" aria-expanded="false" aria-controls="collapseApproaches">
+            <p className='p-0 m-0'>Approaches for {clause&&clause.clause_name?clause.clause_name:''}</p> 
+             <i class='bx bxs-down-arrow'></i>            
+             </button>
+          <div className='collapse show' id='collapseApproaches'>
                   <nav className='pt-2'>
-                    <div className="nav scroll nav-tabs" id="nav-tab" role="tablist">
+                    <div className="nav scroll border-0 nav-tabs clause_nature" id="nav-tab" role="tablist">
                       {
-                       clause_alt&&clause_alt !=undefined && clause_alt.length!=0&& clause_alt.map((Data,i)=>(
-                        <button className={`nav-link ${i==index?' active':''}`} id={`nav-${i}-tab`} onClick={()=>setindex(i)} data-bs-toggle="tab" data-bs-target={`#nav-${i}`} type="button" role="tab" aria-controls={`nav-${i}`} aria-selected="true">
+                       clause_alt&&clause_alt !=undefined && clause_alt.length!=0 && clause_alt.map((Data,i)=>(
+                        <button className={`nav-link ${i==index?' active':''}`} id={`nav-${i}-tab`} onClick={()=>{setindex(i);setclause_alt_id(Data.id);setcategory('simple')}} data-bs-toggle="tab" data-bs-target={`#nav-${i}`} type="button" role="tab" aria-controls={`nav-${i}`} aria-selected="true">
                         <input
                         maxLength={100} 
                         value={Data.nature?Data.nature:''}
@@ -279,7 +509,7 @@ const Update_clause = () => {
                            }
                            return item; 
                          });
-                         clause_alt = updatednature;
+                         setclause_alt(updatednature);
                        }}
                        placeholder='clause Nature'
                       />
@@ -287,24 +517,30 @@ const Update_clause = () => {
                       ))
                       }
                     <button className="nav-link d-flex align-items-center" id="nav-new-tab" data-bs-toggle="tab" data-bs-target="#nav-new" type="button" role="tab" aria-controls="nav-new" aria-selected="true">
-                    add <i className='bx bx-plus'></i>
+                     <i className='bx bx-plus-circle fs-5 me-2'></i>approach
                      </button>
                     </div>
                   </nav>
-              <div className="tab-content" id="nav-tabContent">
+              <div className="tab-content bg-blue13 pt-2" id="nav-tabContent">
                 {
-                clause_alt&&clause_alt !=undefined && clause_alt.length!=0&&clause_alt.map((Data,i)=>(
+                 clause_alt.length!=0&&clause_alt.map((Data,i)=>(
                   <>
                   <div className={`tab-pane ${i==index?'fade show active':'fade'}`} onClick={()=>setindex(i)} id={`nav-${i}`} role="tabpanel" aria-labelledby={`nav-${i}-tab`} tabindex="0">
-                  <div className='row mt-4 justify-content-between'>
-                      <div className="col-10">
-                        <p className='p-0 m-0'><span className='text-greenmain'>Active Scenerios</span> for {Data.nature?Data.nature:''}</p>
-                        <Droppable_Active_scenerois Data={Data} clause_alt = {clause_alt} setclause_alt={setclause_alt}/>
-                        </div>
+                  <button className='col-12 pe-4 d-flex justify-content-between ps-2 text-start text-blue1 py-2 bg-blue13 shadow-0 border-0 ' data-bs-toggle="collapse" data-bs-target="#collapseApproachdetails" aria-expanded="false" aria-controls="collapseApproachdetails">
+                    <p className='p-0 m-0'>Approach details</p>
+            <i class='bx bxs-down-arrow'></i>                    </button>
+                  <div className='collapse show px-1' id='collapseApproachdetails'>
+                  <div className='row pt-2 pe-4 justify-content-between'>
+                    <div className="col-8">
+                    </div>
+                    <div className="col-auto d-flex align-items-center">
+                    <i className='bx bx-save text-blue1'></i>
+                    <button className='bg-transparent text-blue1 border-0' onClick={()=>update_clauseAlt(Data)}>Update {Data.nature}</button>
+                    </div>
                       <div className="col-auto">
-                      <div className="dropdown">
+                      <div className="dropdown d-flex align-items-center">
+                      <i className='bx bx-cog text-blue1' role="button" data-bs-toggle="dropdown" aria-expanded="false" ></i>
                      <span className='text-blue1' role="button" data-bs-toggle="dropdown" aria-expanded="false" >settings</span>                
-                    <i className='bx bx-cog text-blue1' role="button" data-bs-toggle="dropdown" aria-expanded="false" ></i>
                     <ul className="dropdown-menu">
                       {
                         Data.status == 0 ? (
@@ -318,24 +554,25 @@ const Update_clause = () => {
                     </div>
                       </div>
 
-                      <div className="col-10">
-                        <p className='p-0 m-0'><span className='text-redmain'>Inactive Scenerios</span> for {Data.nature?Data.nature:''}</p>
-                        <Droppable_Inactive_scenerois Data={Data} clause_alt = {clause_alt} setclause_alt={setclause_alt}/>
-                        </div>
                   </div>
-    
                     <div className="form__group field w-100">
-                    <textarea maxLength={1000} type="input" className="form__field w-100" value={Data.rationale?Data.rationale:''} 
-                               onChange={ ( e ) => {
-                                setclause_alt(prevState=>({...prevState,rationale:e.target.value}))
-                              }}
-                    placeholder="Type clause purpose here..." name="purpose" required />
+                    <textarea maxLength={1000} type="input" className="form__field bg-white w-100 p-2" value={Data.rationale?Data.rationale:''} 
+                       onChange={ ( e ) => {
+                        const updatedrationale = clause_alt.map(item => {
+                          if (item.id === Data.id) {
+                            return { ...item, rationale:e.target.value };
+                          }
+                          return item; 
+                        });
+                         setclause_alt(updatedrationale)
+                      }}
+                    placeholder="Type clause purpose here..." name="purpose" />
                     <label for="purpose" className="form__label">Definition of {Data.nature?Data.nature:''}</label>
-                    <span className='position-absolute end-0 bottom-0 mb-2'>{Data.rationale!==undefined||Data.rationale!==null?Data.rationale.length:0}/1000</span>
+                    <span className='position-absolute end-0 bottom-0 mb-2 me-4'>{Data.rationale!==undefined||Data.rationale!==null?Data.rationale.length:0}/1000</span>
                     </div>
 
                     <div className="form__group field w-100">
-                    <textarea maxLength={1000} type="input" className="form__field w-100" value={Data.explaination?Data.explaination:''} 
+                    <textarea maxLength={1000} type="input" className="form__field bg-white p-2 w-100" value={Data.explaination?Data.explaination:''} 
                        onChange={ ( e ) => {
                         const updatedrationale = clause_alt.map(item => {
                           if (item.id === Data.id) {
@@ -343,314 +580,216 @@ const Update_clause = () => {
                           }
                           return item; 
                         });
-                         setclause_alt(prevState=>({...prevState,clauses:updatedrationale}))
+                         setclause_alt(updatedrationale)
                       }}
-
-                    placeholder="Type clause rationale here..." name="rationale" required />
+                    placeholder="Type clause rationale here..." name="rationale" />
                     <label for="rationale" className="form__label">Purpose or Rationale of {Data.nature?Data.nature:''}</label>
-                    <span className='position-absolute end-0 bottom-0 mb-2'>{Data.explaination!==undefined&&Data.explaination!==null?Data.explaination.length:0}/1000</span>
+                    <span className='position-absolute end-0 bottom-0 mb-2 me-4'>{Data.explaination!==undefined&&Data.explaination!==null?Data.explaination.length:0}/1000</span>
                     </div>
                     </div>
-                        <ul className="nav nav-pills mb-3 mt-3" id="pills-tab" role="tablist">
-                        <li className="nav-item" role="presentation">
-                              <button className="nav-link active" id={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-simple-tab`} data-bs-toggle="pill" data-bs-target={`#pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-simple`} type="button" role="tab" aria-controls={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-simple`} aria-selected="true">
-                              simple
-                              </button>
-                        </li>
-                        </ul>
+                    <div className=''>
+                      <div className="d-flex justify-content-end me-2 ">
+                      <button className='nav-link bg-white px-3 py-2 rounded-top-2 text-blue1 border-0'onClick={()=>Update_clause_alt_category(clause_alt_ctrgy)}><i className='bx bx-save text-blue1'></i><small className='fw-bold text-blue1'>Save clauses</small></button>
+                      </div>
+                    {               
+                      categories!==undefined && categories.length!==0 ? (
+                        <ul className="nav nav-pills border-bottom border-blue1 bg-white mb-3" id="pills-tab" role="tablist"> 
                         {
-                          clause_alt_ctgry!==undefined&&clause_alt_ctgry.length!==0?(
-                            <div className="tab-content " id="pills-tabContent">
-                            {
-                           clause_alt_ctgry&&clause_alt_ctgry.map((data)=>(
-                          <div className={`tab-pane fade show active ${Data.nature} d-${data.clause_alt_id==Data.id?'block':'none'}`} id={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-simple`} role="tabpanel" aria-labelledby={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-simple-tab`} tabindex="0">
-                          <div name='clause_simple' className={`ck_editor d-${data.category=='simple'?'block':"none"}`}>
-                           {Data.nature?Data.nature:''} {data.category}
-                          <CKEditor
-                          editor={Editor}
-                          config={editorConfiguration}
-                          data={data.html?data.html:'<p></p>'}
-                          onReady={ ( editor ) => {
-                            if(editor ){
-                              return editor
-                            }
-                          }}
-                          onChange={ ( event, editor ) => {
-                            const newdata = editor.getData()
-                            const updatedClauses =data.map(item => {
-                              if (item.id === data.id) {
-                                return { ...item, html: newdata };
-                              }
-                              return item; 
-                            });
-                            setclause_alt_ctgry(prevState=>({...prevState,data:updatedClauses}))
+                              categories.map((item,i)=>(
+                              <li className={`nav-item`} role="presentation" onClick={()=>(setcategory(item))}>
+                              <button className={`nav-link ${ctgryindex==i?'active':""}`} onClick={()=>{setctgryindex(i)}} id={`pills-${item}-tab`} data-bs-toggle="pill" data-bs-target={`#pills-${item}`} type="button" role="tab" aria-controls={`pills-${item}`} aria-selected="true">
+                              {item}
+                              </button>
+                            </li>
+                            ))
+                        } 
+                      </ul>
+                      ):(<></>)
+                    }
+                    <button className='col-12 ps-2 pe-4 text-start d-flex justify-content-between text-blue1 bg-transparent mt-3 border-0 ' data-bs-toggle="collapse" data-bs-target="#collapseKeywords" aria-expanded="false" aria-controls="collapseKeywords">
+                    <p className='p-0 m-0'>Keyword combinations for {category} clauses</p> 
+            <i class='bx bxs-down-arrow'></i>                    </button>
+                    <div className='collapse show' id='collapseKeywords'>
+                    <div className='d-flex justify-content-end p-0 m-0 ms-3 me-3 ' >
+                    <button className='text-blue1 border-0 bg-white px-3 py-2 bg-white rounded-top-2' onClick={()=>updateKC()}>
+                    <i className='bx bx-save text-blue1'></i>
+                    <small className='fw-bold'>Save</small></button>
+                    </div>
+                    <div className='overflow-scroll position-relative' style={{maxHeight:'40vh'}}>
+                   {
+                     isLoading4 || isFetching4 ? (
+                     <div>loading keyword combinations...</div>):(
+                      keyword_combinations!==null&&keyword_combinations!==undefined && keyword_combinations.length!==0?(
+                      <table className={`table ps-3 bg-white d-${keyword_combinations.category == category?'':'none'}`}>
+                        <thead className='text-gray2'>
+                            <tr className=''>
+                              <th className='fw-normal' scope="col">S.No</th>
+                              <th className='fw-normal' scope="col">Prefix</th>
+                              <th className='fw-normal' scope="col">Keyword 1</th>
+                              <th className='fw-normal' scope="col">Middle</th>
+                              <th className='fw-normal' scope="col">Keyword 2</th>
+                              <th className='fw-normal' scope="col">Suffix</th>
+                            </tr>
+                        </thead>
+                      <tbody>
+                        {
+                      keyword_combinations.keyword_combinations!==null&&keyword_combinations.keyword_combinations!==undefined && keyword_combinations.length!==0 && keyword_combinations.keyword_combinations.map((item,i)=>(
+                      <tr className='border-white'>
+                        <th className='fw-normal'>{i+1}.</th>
+                        <td>
+                          <input className='input_border_bottom bg-transparent'
+                          type='text' value={item.prefix}
+                          onChange={(e)=>{UpdateKeywordCombination(item.id,'prefix',e.target.value)}}
+                          onBlur={()=> queryclient.setQueryData(["keyword_combinations",id,clause_alt_id,category],keyword_combinations)}
+                          />
+                        </td>
+                        <td>{item.keyword1}</td>
+                        <td>
+                        {
+                            item.middle!==undefined? (
+                            
+                              <input className='input_border_bottom' type='text' 
+                              value={item.middle}
+                              onChange={(e)=>{UpdateKeywordCombination(item.id,'middle',e.target.value)}}
+                              onBlur={()=> queryclient.setQueryData(["keyword_combinations",id,clause_alt_id,category],keyword_combinations)}
+                              />
+                            
+                            ):(
+                              <></>
+                            )
                           }
-                        }
+                        </td>
+                        <td>{item.keyword1}</td>
+                        <td>
+                        <input className='input_border_bottom bg-transparent' type='text' value={item.suffix}
+                        onChange={(e)=>{UpdateKeywordCombination(item.id,'suffix',e.target.value)}}
+                        onBlur={()=> queryclient.setQueryData(["keyword_combinations",id,clause_alt_id,category],keyword_combinations)}
                         />
-                          </div>
-                          </div>
-                              ))
-                            }
-                            </div>
-                         
-                          ):(
-                            <div>no simple category of sample clauses found</div>
-         
-                          )
-                    
+                        </td>
+                      </tr>
+                      )) 
                         }
-                 
-                      </>
-                ))
-                }
-            
-              </div>
-          </>
-        )}
-      
+                      </tbody>
+                      </table> 
+                       
+                  ):(
+              keyword_combinations.keyword_combinations==null||clause.keyword_combinations!==null ? (
+                <button className='border-0 text-blue1 bg-transparent border-bottom border-blue1 d-flex align-items-center ' 
+                onClick={()=>{AddKeyword_combinations()}}><i class='bx bx-plus-circle fs-5'></i>Get Combinations for {category} clauses</button>
+              ):(
+                <button className='border-0 text-blue1 bg-transparent border-bottom border-blue1 d-flex align-items-center ' 
+                onClick={()=>{AddKeyword_combinations()}}><i class='bx bx-plus-circle fs-5'></i>Get Combinations for {category} clauses</button>
+              )
+             )
+                    )
+                  }
+                  </div>
+                  </div>
+          {
+            isLoading3 || isFetching3 ? (
+            <div>loading clause alternate categories ....</div>)
+            :(
+            clause_alt_ctrgy!==undefined && clause_alt_ctrgy.length!==0 ? (
+              <div>
 
-        
-      
-
-
-     {/* <div className="col">
-      {
-        clause_alt&&clause_alt !=undefined && clause_alt.length!=0?(
-          <>
-              <nav className='pt-2'>
-                <div className="nav scroll nav-tabs" id="nav-tab" role="tablist">
-                  {
-                     clause_alt.map((Data,i)=>(
-                    <button className={`nav-link ${i==index?' active':''}`} id={`nav-${i}-tab`} onClick={()=>setindex(i)} data-bs-toggle="tab" data-bs-target={`#nav-${i}`} type="button" role="tab" aria-controls={`nav-${i}`} aria-selected="true">
-                    <input
-                    maxLength={100} 
-                    value={Data.nature?Data.nature:''}
-                    onChange={ ( e ) => {
-                     const updatednature = clause_alt.map(item => {
-                       if (item.id === Data.id) {
-                         return { ...item, nature:e.target.value };
-                       }
-                       return item; 
-                     });
-                     setdata(prevState=>({...prevState,clauses:updatednature}))
+              {
+              clause_alt_ctrgy.map((item)=>(
+                <div className={`d-${item.category==category?'block':'none'} my-2`}>
+                <select value={item.keyword?item.keyword:""} 
+                onChange={(e)=>{                   
+                  const updatedClauses = clause_alt_ctrgy.map(data => {
+                    const newdata = e.target.value
+                  if (item.id == data.id) {
+                    return { ...data, keyword: newdata};
+                  }
+                  return data; 
+                })
+                setclause_alt_ctrgy(updatedClauses)
+                }} 
+              onBlur={()=> queryclient.setQueryData(["clause_alt_ctrgy",id,clause_alt_id],clause_alt_ctrgy)}
+                className='border rounded-top-1 border-bottom-0 pe-2 py-2'>
+                    <option value='null' className='text-gray2'>Choose combination for this sample clause</option>
+                   {
+                     keyword_combinations!==null && keyword_combinations!==undefined&&keyword_combinations.length!==0&&keyword_combinations.keyword_combinations!==null&&keyword_combinations.keyword_combinations.map((combinations,i)=>(
+                       <option className='' value={JSON.stringify(combinations)}>{combinations.prefix}{' '}{combinations.keyword1}{' '}{combinations.middle}{' '}{combinations.keyword2}{' '}{combinations.suffix}</option>
+                     ))
+                   }
+                 </select>
+                <CKEditor
+                   editor={Editor}
+                   config={editorConfiguration}
+                   data={item.html?item.html:'<p></p>'}
+                   onReady={ ( editor ) => {
+                     if(editor){
+                       return editor
+                     }
                    }}
-                   placeholder='clause Nature'
-                  />
-                 </button>
-                  ))
+                   onChange={ ( event, editor ) => {
+                     const newdata = editor.getData()
+                     const updatedClauses = clause_alt_ctrgy.map(data => {
+                       if (item.id == data.id) {
+                         return { ...data, html: newdata };
+                       }
+                       return data; 
+                     })
+                     setclause_alt_ctrgy(updatedClauses)
+                   }
                   }
-                <button className="nav-link d-flex align-items-center" id="nav-new-tab" data-bs-toggle="tab" data-bs-target="#nav-new" type="button" role="tab" aria-controls="nav-new" aria-selected="true">
-                add <i className='bx bx-plus'></i>
-                 </button>
+                  onBlur={()=> queryclient.setQueryData(["clause_alt_ctrgy",id,clause_alt_id],clause_alt_ctrgy)}
+                     />
                 </div>
-              </nav>
-              <div className="tab-content" id="nav-tabContent">
-                {
-                   data.clauses !=undefined && data.clauses.map((Data,i)=>(
-                    <div className={`tab-pane ${i==index?'fade show active':'fade'}`} onClick={()=>setindex(i)} id={`nav-${i}`} role="tabpanel" aria-labelledby={`nav-${i}-tab`} tabindex="0">
 
-            <ul className="nav nav-pills mb-3 mt-3" id="pills-tab" role="tablist">
-              <li className="nav-item" role="presentation">
-                <button className="nav-link active" id={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-simple-tab`} data-bs-toggle="pill" data-bs-target={`#pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-simple`} type="button" role="tab" aria-controls={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-simple`} aria-selected="true">
-                simple 
-                <span className='text-gray2 ms-2'>
-                <small>
-                {Data.simple!==undefined&&Data.simple!==null
-                ?
-                <span className={`${Data.simple.length==0?'text-redmain':'text-gray2'}`}>{Data.simple.length}</span>
-                :
-                <span className='text-redmain'>0</span>}
-                </small>
-                </span>
-                </button>
-              </li>
-              <li className="nav-item" role="presentation">
-                <button className="nav-link" id={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-moderate-tab`} data-bs-toggle="pill" data-bs-target={`#pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-moderate`} type="button" role="tab" aria-controls={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-moderate`} aria-selected="false">
-                  moderate 
-                  <span className='text-gray2 ms-2'>
-                  <small>
-                  {Data.moderate!==undefined&&Data.moderate!==null
-                  ?
-                  <span className={`${Data.moderate.length==0?'text-redmain':'text-gray2'}`}>{Data.moderate.length}</span>
-                  :
-                  <span className='text-danger'>0</span>}
-                  </small>
-                  </span>
-                  </button>
-              </li>
-              <li className="nav-item" role="presentation">
-                <button className="nav-link" id={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-complex-tab`} data-bs-toggle="pill" data-bs-target={`#pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-complex`} type="button" role="tab" aria-controls={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-complex`} aria-selected="false">
-                  complex 
-                  <span className='text-gray2 ms-2'>
-                  <small>{Data.complex!==undefined&&Data.complex!==null?<span className={`${Data.complex.length==0?'text-redmain':'text-gray2'}`}>{Data.complex.length}</span>:<span className='text-danger'>0</span>}</small></span></button>
-              </li>
-            </ul>
-            <div className="tab-content " id="pills-tabContent">
-              <div className="tab-pane fade show active" id={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-simple`} role="tabpanel" aria-labelledby={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-simple-tab`} tabindex="0">
-              <div  name='clause_simple' className='ck_editor'>
-                  <CKEditor
-                  editor={Editor}
-                  config={editorConfiguration}
-                  data={Data.simple?Data.simple:'<p></p>'}
-                  onReady={ ( editor ) => {
-                    if(editor ){
-                      return editor
-                    }
-                  }}
-                  onChange={ ( event, editor ) => {
-                    const newdata = editor.getData()
-                    const updatedClauses =data.clauses.map(item => {
-                      if (item.id === Data.id) {
-                        return { ...item, simple: newdata };
-                      }
-                      return item; 
-                    });
-                    setdata(prevState=>({...prevState,clauses:updatedClauses}))
-                  }
-                }
-                />
-            </div>
+              ))
+              }
+                <div className="row p-0 m-0 mt-3 justify-content-center">
+               <div 
+               onClick={()=>{
+              setclause_alt_ctrgy(prevState=>([...prevState,New_clause_alt_category_obj]));
+              queryclient.setQueryData(["clause_alt_ctrgy",id,clause_alt_id],clause_alt_ctrgy);
+              }} className="col-11 d-flex align-items-center justify-content-center cursor-pointer rounded-2 bg-white mb-4 py-2 text-center">
+               <i className='bx bxs-add-to-queue text-blue1'></i><span className='text-blue1'>Add {category} clause</span>
+               </div>
+             </div>
               </div>
-              <div className="tab-pane fade" id={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-moderate`} role="tabpanel" aria-labelledby={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-moderate-tab`} tabindex="1">
-              <div name='clause_moderate' className='ck_editor'>
-                  <CKEditor
-                  editor={Editor}
-                  config={editorConfiguration}
-                  data={Data.moderate?Data.moderate:'<p></p>'}
-                  onReady={ ( editor ) => {
-                    if(editor ){
-                      return editor
-                    }
-                  }}
-                  onChange={ ( event, editor ) => {
-                    const newdata = editor.getData()
-                    const updatedClauses =data.clauses.map(item => {
-                      if (item.id === Data.id) {
-                        return { ...item, moderate: newdata };
-                      }
-                      return item; 
-                    });
-                    setdata(prevState=>({...prevState,clauses:updatedClauses}))
-                  }
-                }
-                />
-              
-        
-            </div>
-              </div>
-              <div className="tab-pane fade" id={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-complex`} role="tabpanel" aria-labelledby={`pills-${Data.nature?words_extraction(Data.nature):`clausetype${Data.id}`}-complex-tab`} tabindex="2">
-              <div name='clause_complex' className='ck_editor'>
-                  <CKEditor
-                  editor={Editor}
-                  config={editorConfiguration}
-                  data={Data.complex?Data.complex:'<p></p>'}
-                  onReady={ ( editor ) => {
-                    if(editor ){
-                      return editor
-                    }
-                  }}
-                  onChange={ ( event, editor ) => {
-                    const newdata = editor.getData()
-                    const updatedClauses =data.clauses.map(item => {
-                      if (item.id === Data.id) {
-                        return { ...item, complex: newdata };
-                      }
-                      return item; 
-                    });
-                    setdata(prevState=>({...prevState,clauses:updatedClauses}))
-                  }
-                }
-                />
-            </div>
-            </div>
-            </div>
-            </div>
+            ):(<div>no categories found</div>)
+            )
+          }
+                    </div>
+                  </div>
+                  </>
                 ))
                 }
-            <div className="tab-pane fade mt-3" id="nav-new" role="tabpanel" aria-labelledby="nav-new-tab" tabindex="0">
-            <div className="float-end cursor-pointer me-5 mb-3" style={{width:'min-content'}} onClick={()=>Add_new_clause_alt()}>
-              <div className="d-flex align-items-center">
-              <span className="text-blue1">Save</span><i class='bx bxs-save text-blue1' ></i>
-              </div>
-           </div> 
+                {/* Add new clause Alternate */}
+                <div className="tab-pane fade mt-3" id="nav-new" role="tabpanel" aria-labelledby="nav-new-tab" tabindex="0">
+                <div className="float-end cursor-pointer me-5 mb-3" style={{width:'min-content'}} onClick={()=>Add_new_clause_alt()} >
+                <div className="d-flex align-items-center">
+                <span className="text-blue1">Save</span><i class='bx bxs-save text-blue1' ></i>
+                </div>
+                </div> 
                 <section className='col-12'>
                 <label htmlFor="clause_tag">clause Nature</label>
-                <input type="text" className='mb-4 py-2 border border-gray1 w-100 d-block p-2' value={clause_alt&&clause_alt.nature?clause_alt.nature:''} onChange={(e)=>{setclause_alt(prevState=>({...prevState,nature:e.target.value}))}}/>
+                <input type="text" className='mb-4 py-2 border border-gray1 w-100 d-block p-2' 
+                value={new_clause_alt&&new_clause_alt.nature?new_clause_alt.nature:''} 
+                onChange={(e)=>{setnew_clause_alt(prevState=>({...prevState,nature:e.target.value}))}}/>
                 <label htmlFor="rationale" className='text-gray1 p-2'>clause Purpose</label>
-                <textarea className='mb-4 py-2 border border-gray1 w-100 d-block p-2' value={clause_alt&&clause_alt.rationale?clause_alt.rationale:''} onChange={(e)=>{setclause_alt(prevState=>({...prevState,rationale:e.target.value}))}} />
+                <textarea className='mb-4 py-2 border border-gray1 w-100 d-block p-2' value={new_clause_alt&&new_clause_alt.rationale?new_clause_alt.rationale:''} onChange={(e)=>{setnew_clause_alt(prevState=>({...prevState,rationale:e.target.value}))}} />
                 <label htmlFor="rationale" className='text-gray1 p-2'>clause Explaination</label>
-                <textarea className='mb-4 py-2 border border-gray1 w-100 d-block p-2' value={clause_alt&&clause_alt.explaination?clause_alt.explaination:''} onChange={(e)=>{setclause_alt(prevState=>({...prevState,explaination:e.target.value}))}} />
-                <label htmlFor="sample clause" className='text-gray1'>Sample clause:Simple</label>
-                <div className='ck_editor mb-4' name='simple clause'>
-                  <CKEditor
-                    editor={Editor}
-                    config={editorConfiguration}
-                  data={clause_alt.simple?clause_alt.simple:''}
-                  onReady={ ( editor ) => {
-                    if(editor && editor.model){
-                      return editor
-                    }
-                  }}
-                  onChange={ ( event, editor ) => {
-                      if(editor && editor.model){
-                        const newdata = editor.getData();
-                        setclause_alt(prevState=>({...prevState,simple:newdata}))
-                      }
-                  }}
-                />
-            </div>
-            <label htmlFor="sample clause" className='text-gray1'>Sample clause:Moderate</label>
-            <div className='ck_editor mb-4' name='simple clause'>
-                  <CKEditor
-                    editor={Editor}
-                    config={editorConfiguration}
-                  data={clause_alt.moderate?clause_alt.moderate:''}
-                  onReady={ ( editor ) => {
-                    if(editor && editor.model){
-                      return editor
-                    }
-                  }}
-                  onChange={ ( event, editor ) => {
-                      if(editor && editor.model){
-                        const newdata = editor.getData();
-                        setclause_alt(prevState=>({...prevState,moderate:newdata}))
-                      }
-                  }}
-                />
-            </div>
-            <label htmlFor="sample clause" className='text-gray1'>Sample clause:Complex</label>
-            <div className='ck_editor mb-4' name='simple clause'>
-                  <CKEditor
-                    editor={Editor}
-                    config={editorConfiguration}
-                  data={clause_alt.complex?clause_alt.complex:''}
-                  onReady={ ( editor ) => {
-                    if(editor && editor.model){
-                      return editor
-                    }
-                  }}
-                  onChange={ ( event, editor ) => {
-                      if(editor && editor.model){
-                        const newdata = editor.getData();
-                        setclause_alt(prevState=>({...prevState,complex:newdata}))
-                      }
-                  }}
-                />
-            </div>
-            </section>
-    
-            </div>
-            </div>
+                <textarea className='mb-4 py-2 border border-gray1 w-100 d-block p-2' value={new_clause_alt&&new_clause_alt.explaination?new_clause_alt.explaination:''} onChange={(e)=>{setnew_clause_alt(prevState=>({...prevState,explaination:e.target.value}))}} />
+                </section>
+
+                </div>
+                {/* Add new clause Alternate */}
+                </div>
+          </div>
+     
+
           </>
-        ):(
-          <div className="container text-center text-gray2 ">No clause alternates found</div>
-        )
-      }
-     </div> */}
-     </div>
+        )}
+      </div>
       )
      }
     </section>
+    </>
   )
 }
 

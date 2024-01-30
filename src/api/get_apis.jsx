@@ -14,10 +14,10 @@ export const Get_websites  = async()=>{
     }
     return data
 }
-export const Get_permissions  = async(role_id)=>{
+export const Get_website_by_id  = async(id)=>{
     let data;
     try {
-        await axios.get(`/api/admin/auth/permissions?role_id=${role_id}`).then((response)=>{
+        await axios.get(`/api/admin/admin_users/websites/id/?ids=${id}`).then((response)=>{
             data = response
            })
     } catch (error) {
@@ -25,12 +25,33 @@ export const Get_permissions  = async(role_id)=>{
     }
     return data
 }
-// /api/admin/auth/permissions?role_id=2
+export const Get_permissions_by_role_id  = async(role_id)=>{
+    let data;
+    try {
+        await axios.get(`/api/admin/admin_users/permissions/role_id?role_id=${role_id}`).then((response)=>{
+            data = response
+           })
+    } catch (error) {
+        toast.error(error.message)
+    }
+    return data
+}
+export const Get_permissions = async()=>{
+    let data;
+    try {
+        await axios.get(`/api/admin/admin_users/permissions/list`).then((response)=>{
+            data = response
+           })
+    } catch (error) {
+        toast.error(error.message)
+    }
+    return data
+}
 
-export const Get_Admin_users_list = async(role_id)=>{
+export const Get_Admin_users_list = async(role_id,user_id)=>{
     let data;
 try {
-    await axios.get(`/api/admin/admin_users/list?role_id=${role_id}`).then((response)=>{
+    await axios.get(`/api/admin/admin_users/list?role_id=${role_id}&senior_user_id=${user_id}`).then((response)=>{
         data = response
        })
 } catch (error) {
@@ -38,10 +59,45 @@ try {
 }
 return data
 }
-export const Get_Admin_user_by_Id = async(id)=>{
+
+export const Get_Roles = async()=>{
     let data;
 try {
-    await axios.get(`/api/admin/admin_users/${id}`).then((response)=>{
+    await axios.get(`/api/admin/admin_users/roles/list`).then((response)=>{
+        data = response
+       })
+} catch (error) {
+    toast.error(error.message)
+}
+return data
+}
+export const Get_Role_By_Id = async(id)=>{
+    let data;
+try {
+    await axios.get(`/api/admin/admin_users/role/id?id=${id}`).then((response)=>{
+        data = response
+       })
+} catch (error) {
+    toast.error(error.message)
+}
+return data
+}
+
+export const Get_Admin_user_by_RoleId = async(role_id)=>{
+    let data;
+try {
+    await axios.get(`/api/admin/admin_users/role/${role_id}`).then((response)=>{
+        data = response
+       })
+} catch (error) {
+    toast.error(error.message)
+}
+return data
+}
+export const Get_Admin_user_by_Id = async(id,role_id)=>{
+    let data;
+try {
+    await axios.get(`/api/admin/admin_users/id/${id}?role_id=${role_id}`).then((response)=>{
         data = response
        })
 } catch (error) {
@@ -62,17 +118,6 @@ return data
 }
 
 
-export const Non_user_Access = async()=>{
-    let data;
-try {
-    await axios.get(`/non_user_auth`).then((response)=>{
-        data = response
-       })
-} catch (error) {
-    toast.error(error.message)
-}
-return data
-}
 //blogs
 export const Get_blogs = async(user_id,limit,offset,search)=>{
     let data;
@@ -110,6 +155,41 @@ export const Get_blog_count = async()=>{
     return data
 }
 //clauses
+export const Get_clause_keywords = async()=>{
+    let data;
+    try {
+        await axios.get('/api/admin/features/clause/keywords/list').then((response)=>{
+            data = response
+        })  
+    } catch (error) {
+        toast.error(error.message)
+    }
+    return data
+}
+export const Get_clause_keywordCombinations = async(clause_id,clause_alt_id,category)=>{
+    let data;
+    try {
+        await axios.get(`/api/admin/features/clause/clause_alternates/keyword_combinations?clause_id=${clause_id}&clause_alt_id=${clause_alt_id}&category=${category}`).then((response)=>{
+            data = response
+        })  
+    } catch (error) {
+        toast.error(error.message)
+    }
+    return data
+}
+
+export const Get_clause_keyword_by_Id = async(id)=>{
+    let data;
+    try {
+        await axios.get(`/api/admin/features/clause/keyword/id?id=${id}`).then((response)=>{
+            data = response
+        })  
+    } catch (error) {
+        toast.error(error.message)
+    }
+    return data
+}
+
 export const Get_clause_count = async()=>{
     let data;
     try {
@@ -157,10 +237,10 @@ export const Get_Clause_alt_by_id = async(clause_id)=>{
     }
     return res
 }
-export const Get_Clause_alt_ctgry_by_id = async(clause_id)=>{
+export const Get_Clause_alt_ctgry_by_id = async(clause_id,clause_alt_id)=>{
     let res;
     try {
-        await axios.get(`/api/admin/services/libraries/clause/clause_alt/category/view?clause_id=${clause_id}`).then((response)=>{
+        await axios.get(`/api/admin/services/libraries/clause/clause_alt/category/view?clause_id=${clause_id}&clause_alt_id=${clause_alt_id}`).then((response)=>{
             res = response
         })
     } catch (error) {
