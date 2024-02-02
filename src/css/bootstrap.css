@@ -113,9 +113,11 @@ justify-content: center;
 align-items: center;
 }
 .ck_editor{
+    color: var(--black);
     height: max-content;
 }
 .ck{
+    color: var(--black);
     height:max-content;
 }
 .icons{
@@ -723,3 +725,17 @@ table tbody tr:hover{
   button:disabled{
     cursor: not-allowed;
   }
+
+
+.nav-pills .nav-link.active{
+    color:inherit;
+    background-color: inherit;
+}
+.nav-pills {
+    --bs-nav-pills-border-radius: inherit;
+    --bs-nav-pills-link-active-color: inherit;
+    --bs-nav-pills-link-active-bg: inherit;
+}
+.wrapper{
+    z-index:1000;
+}

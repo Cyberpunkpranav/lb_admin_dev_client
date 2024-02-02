@@ -34,10 +34,13 @@ const postdata = async()=>{
 
   return (
     <div className={`container mt-4 position-relative`}>
-      <div className="d-flex align-items-center">
-      <Link to='../Admin/services/libraries/clauses'><i class='bx bx-chevron-left mt-1 fs-3' ></i></Link>
-      <h6 className=' p-0 m-0 d-inline text-center'>Create New Clause Schema</h6>
-      </div>
+          <nav aria-label="breadcrumb position-sticky top-0 bg-white">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><Link to="/Admin/dashboard">Home</Link></li>
+        <li class="breadcrumb-item"><Link to="/Admin/services/libraries/clauses">Clauses</Link></li>
+        <li class="breadcrumb-item active" aria-current="page">Create clause</li>
+      </ol>
+      </nav>
       <div className="row g-3 mt-4">
       <div className="col-12">
       <div class="form__group field w-100">

@@ -7,9 +7,10 @@ import Pagination from '../../../extras/pagination'
 import toast from 'react-hot-toast'
 import { Permissions } from '../../../../App'
 import Loader from '../../../../utils/loader'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery,useQueryClient} from '@tanstack/react-query'
 
 const Clauses = () => {
+  const queryclient = useQueryClient()
   const permissions = useContext(Permissions)
   const encrypted_user_id = Cookies.get('user_id')
   const encrypted_role = Cookies.get('role')
@@ -29,21 +30,22 @@ const Clauses = () => {
   const fetch = async(Data)=>{
     setloading(true)
     if (Data == undefined || Data.selected == undefined) {
-      const Data =  await Get_Clauses(data.user_id,data.limit,data.offset,data.search)
-      setclauses(Data.data.data)
-      setloading(false)
-      return Data.data.data
+        const Data =  await Get_Clauses(data.user_id,data.limit,data.offset,data.search)
+        setclauses(Data.data.data)
+        setloading(false)
+        return Data.data.data
     }else{
       const clause =  await Get_Clauses(data.user_id,data.limit,Data.selected*max_count,data.search)
       setclauses(clause.data.data)
       setloading(false)
       return clause.data.data
     }
+
   }
   
 const { isLoading:isLoading1, isFetching:isFetching1, isError:isError1, data:clause_data , error:error1 } = useQuery(
 { 
-queryKey: ["clauses_list"],
+queryKey: ["clauses_list",data.limit,data.offset],
  queryFn: fetch ,
 })
   useEffect(()=>{
@@ -63,6 +65,8 @@ queryKey: ["clauses_list"],
     Get_count()
   },[])
   return (
+    <>
+
     <div className="container mt-4">
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
@@ -78,7 +82,7 @@ queryKey: ["clauses_list"],
         <div className="col-8">
           <div className="row">
             <div className="col-auto">
-            <h4 className='text-start p-0 m-0 fw-normal'>Clauses</h4>
+            <h4 className='text-start d-inline p-0 m-0 fw-normal'>Clauses</h4><span className='px-2 py-1 bg-transparentgreen1 text-greenmain ms-2 rounded-2'>{total_count}</span>
             </div>
             <div className={`col-auto p-0 m-0 ms-3 mt-1 d-${permissions.data.add_clause==1?'block':'none'}`}>
            <Link to='./new' className='p-0 m-0'><i class='bx bxs-plus-circle fs-4 text-dark' ></i></Link>
@@ -141,9 +145,10 @@ queryKey: ["clauses_list"],
       <Loader/>
     )
   }
-    <Pagination total_count={total_count} max_count={10} pages_display={3} pges_range_display={4} Fetch={fetch}/>
+    <Pagination total_count={total_count} max_count={10} pages_display={3} pages_range_display={4} Fetch={fetch}/>
   </section>
   </div>
+  </>
   ) 
 }
 

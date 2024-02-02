@@ -5,22 +5,23 @@
     min-width:100%;
 }
 .updateclausesection{
-    min-height:150vh;
+    min-height:100vh;
 }
 .updateclausesection .nav-pills .nav-link{
-    background-color: transparent;
-    color: var(--gray2);
-    border-radius: 0;
-    border-bottom: 1px solid transparent;
+    background-color: transparent ;
+    color: var(--black) ;
+    border-radius: 0 ;
+    border-bottom: 1px solid transparent ;
 }
 .updateclausesection .nav-pills .nav-link.active{
-    background-color: transparent;
-    color: var(--black);
-    border-radius: 0;
-    border-bottom: 1px solid var(--blue1);
+    background-color: transparent ;
+    color: var(--blue1) ;
+    border-radius: 0 ;
+    border-bottom: 2px solid var(--blue1) ;
 }
+
 .clause_nature .active{
-    border: 0;
+    border: 1px solid var(--blue1) !important;
     color: var(--blue1) !important;
     background-color: var(--blue13) !important;
 }

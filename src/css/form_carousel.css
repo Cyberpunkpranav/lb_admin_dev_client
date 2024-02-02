@@ -1,0 +1,21 @@
+.indicator{
+ padding: 4px !important;
+ border: 1px solid var(--gray1) !important;
+ border-radius: 50% !important;
+ background-color: var(--white);
+}
+ .active{
+    padding:4px !important;
+    background-color: var(--greenmain) !important;
+    border:1px solid var(--greenmain) !important;
+    border-radius: 50% !important;
+}
+.indicator-title {
+    color: var(--gray1) !important;
+}
+.indicator-title .active{
+    color: var(--greenmain) !important;
+}
+.carousel-desc{
+    color: var(--gray1) !important;
+}

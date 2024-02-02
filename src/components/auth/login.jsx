@@ -31,9 +31,13 @@ const Login = () => {
         try{
           setload(true)
           axios.post(`/api/admin/auth/login`,creds).then((response)=>{
-            if(response.data.status){
+            let response_msg = 0 
+            if(response_msg == 0){
               toast.success(response.data.message);
-              setusequery(true)
+              response_msg=1
+            }
+            if(response.data.status){
+              // setusequery(true)
               let user_id = encryptNumber(response.data.data.id)
               let senior_user_id = response.data.data.senior_user_id?encryptNumber(response.data.data.senior_user_id):""
               let role_id = encryptNumber(response.data.data.role_id)
@@ -60,12 +64,12 @@ const Login = () => {
         return true
     }
 
-    const { isLoading, isFetching, isError, data , error } = useQuery(
-      { 
-      queryKey: ["login"],
-       queryFn:login,
-       enabled:usequery
-      })  
+    // const { isLoading, isFetching, isError, data , error } = useQuery(
+    //   { 
+    //   queryKey: ["login"],
+    //    queryFn:login,
+    //    enabled:usequery
+    //   })  
 
   return (
     <div className="container mainapp align-items-center d-flex justify-content-center">

@@ -40,6 +40,8 @@ const Update_clause = () => {
       category:category,
       keyword:''
     }
+    const [editorIndex,seteditorIndex] = useState(0)
+    const [carousel,setcarousel] = useState(0)
     // clause editor configs
     const editorConfiguration = {
       toolbar: {
@@ -135,7 +137,6 @@ const Update_clause = () => {
       const QueryData = queryclient.getQueryData(["keyword_combinations",id,clause_alt_id,category]);
       if(QueryData==undefined || QueryData==null || QueryData.length==0){
         const Data = await Get_clause_keywordCombinations(id,clause_alt_id,category)
-        console.log(Data);
         return Data.data.data
       }else{
         return QueryData
@@ -307,7 +308,7 @@ function GenerateCombinations() {
         const keyword1 = clause.keywords[i].keyword;
         const keyword2 =  clause.keywords[j].keyword;
         combinations.push(
-          { id: combinations.length + 1,
+          { id: Number(id),
             keyword1: keyword1,
             keyword2: keyword2,
             prefix:clause.keywords[i].prefix,
@@ -315,7 +316,7 @@ function GenerateCombinations() {
             suffix:clause.keywords[i].suffix 
           });
           combinations.push(
-          { id: combinations.length + 1,
+          { id: Number(id),
             keyword1: keyword1,
             keyword2: keyword2,
             prefix:clause.keywords[i].prefix,
@@ -327,7 +328,7 @@ function GenerateCombinations() {
   }
   for(let i =0;i<clause.keywords.length;i++){
     combinations.push({
-      id:clause.keywords[i].id,
+      id:Number(id),
       keyword1:clause.keywords[i].keyword,
       keyword2:'',
       prefix:clause.keywords[i].prefix,
@@ -346,8 +347,8 @@ const UpdateKeywordCombination = (keywordCombinationId,variable,value) => {
   setkeyword_combinations((prevData) => { 
         return {
           ...prevData,
-          keyword_combinations: prevData.keyword_combinations.map((keywordObj) => {
-            if (keywordObj.id === keywordCombinationId) {
+          keyword_combinations: prevData.keyword_combinations.map((keywordObj,i) => {
+            if (i=== keywordCombinationId) {
               return {
                 ...keywordObj,
                 [variable]:value, // Update the specific properties you want to change
@@ -368,30 +369,495 @@ const updateKC = async()=>{
     toast.error(data.data.message)
   }
 }
-// console.log(clause); 
-// console.log(clause_alt);
-// console.log(clause_alt_ctrgy);
-console.log(keyword_combinations);
+const Add_duplicate = (k1,k2)=>{
+const obj = {
+  id:id,
+  prefix:'',
+  keyword1:k1,
+  middle:'',
+  keyword2:k2,
+  suffix:''
+}
+  setkeyword_combinations(prevState=>({...prevState,keyword_combinations:[...prevState.keyword_combinations,obj]}))
+  toast.success('duplicate done !')
+}
+const Delete_KeywordCombination = (Array,index)=>{
+  console.log(index);
+if (index > -1) {
+  Array.splice(index, 1);
+  setkeyword_combinations(prevState=>({...prevState,keyword_combinations:Array}))
+}
+}
+const SaveAll=()=>{
+  Update()
+  updateKC()
+  Update_clause_alt_category(clause_alt_ctrgy)
+}
+console.log(carousel);
 
     return (
-      <>
-      <nav aria-label="breadcrumb position-fixed top-0 bg-white">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><Link to="/Admin/dashboard">Home</Link></li>
-        <li class="breadcrumb-item"><Link to="/Admin/services/libraries/clauses">Clauses</Link></li>
-        <li class="breadcrumb-item active" aria-current="page">{clause&&clause.clause_name!==undefined&&clause.clause_name!==null?clause.clause_name:""}</li>
+      <section className='container mt-2'>
+      <nav aria-label="breadcrumb position-sticky top-0 bg-white">
+      <ol className="breadcrumb">
+        <li className="breadcrumb-item"><Link to="/Admin/dashboard">Home</Link></li>
+        <li className="breadcrumb-item"><Link to="/Admin/services/libraries/clauses">Clauses</Link></li>
+        <li className="breadcrumb-item active" aria-current="page">{clause&&clause.clause_name!==undefined&&clause.clause_name!==null?clause.clause_name:""}</li>
       </ol>
       </nav>
-    <section className='container overflow-scroll position-relative mt-4 update_clause_section'>
-     
+          <div id="carouselExampleDark" className="carousel carousel-dark slide updateclausesection">
+            <div className="d-flex justify-content-end">
+            <button className='bg-blue1 text-white rounded-2 border-0 px-3 py-2' onClick={()=>SaveAll()}>Save All</button>
+            </div>
+         <div className="carousel-indicators position-relative p-0 m-0">
+           <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="0" className="active p-0 m-0" aria-current="true" aria-label="Slide 1"></button>
+           <button className='p-0 m-0 ms-2' type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="1" aria-label="Slide 2"></button>
+         </div>
+        <div className="carousel-inner overflow-scroll" style={{height:'75vh'}}>
+        <div className="carousel-item active" data-bs-interval="10000">
+          <div className="row position-sticky top-0 align-items-center">
+            <div className="col-10">
+            <p className='p-0 m-0 text-gray1'>Clause and keywords{' '}|{" "}<span className='p-0 m-0 text-gray2'>Fill and update clause details and arrange keyword selection</span></p>
+            </div>
+            <div className="col-2">
+            <div className="d-flex align-items-center justify-content-end cursor-pointer " onClick={()=>Update()}>
+            <div className="col-auto bg-blue13 d-flex align-items-center px-2 py-1 rounded-2 border border-blue1">
+            <i className='bx bx-save text-blue1'></i>
+            <span className='p-0 m-0 text-blue1'>Save</span>
+            </div>
+           </div>
+            </div>
+      </div>
+      <div className='d-block w-100'>
+        <div className="row justify-content-between">
+        {/* Draggable keywords */}
+         <div className="col mt-2">
+          <div className="row justify-content-between">
+            <div className="col-auto">
+            <p className='d-flex align-items-center p-0 m-0 text-gray2'>All keywords</p>
+            </div>
+            <div className="col-auto">
+              <span className='text-gray2'>Total keywords : </span>
+            <span className='badge text-greenmain fs-6 border-greenmain me-2 bg-transparentgreen1'>{keyword_data!==undefined?keyword_data.length:""}</span>
+            </div>
+          </div>
+           {
+           keyword_loading || keyword_fetching ?(
+               <div>getting keywords....</div>
+           ):(
+             <div className="row p-0 m-0 scroll mt-2">
+               {
+                 keyword_data&&keyword_data.length!==0?(
+                   keyword_data.map((data,i)=>(
+                      <Draggable_keywords id = {data.id} prefix = {data.prefix} suffix = {data.suffix} keyword={data.keyword} inactive_keywords={data.inactive_keywords} setclause={setclause}/>
+                  ))
+                ):(
+                  <p className='text-center py-2 text-gray2 fw-semibold'>no keywords</p>
+                )
+                   }
+             </div>
+
+           )
+           }
+         </div>
+        {/* Draggable keywords */}
+
+        <div className="col-12">
+        <div className="form__group field w-100">
+        <input maxLength={100} type="input" className="form__field p-2 " value={clause&&clause.clause_name?clause.clause_name:""} 
+        onChange={(e)=>  setclause(prevState=>({...prevState,clause_name:e.target.value}))} 
+        onBlur={()=> queryclient.setQueryData(["clause",id],clause)}
+        placeholder="Type clause Name here..." name="name" id='name' />
+        <span className='position-absolute end-0 bottom-0 me-4'>{clause&&clause.clause_name!==undefined&&clause.clause_name!==null?clause.clause_name.length:0}/100</span>
+        <label for="name" className="form__label"> Clause</label>
+        </div>
+        </div>
+        </div>
+            <div className="col-12 my-4">
+            <div className="form__group field w-100">
+            <textarea maxLength={1000} type="input" className="form__field pe-5 p-2" value={clause&&clause.definition?clause.definition:''} 
+            onChange={(e)=>setclause(prevState=>({...prevState,definition:e.target.value}))} 
+            onBlur={()=> queryclient.setQueryData(["clause",id],clause)}
+            />
+            <label for="name" className="form__label">Definition of {clause&&clause.clause_name?clause.clause_name.toLowerCase():""}</label>
+            <span className='position-absolute end-0 bottom-0 mb-2 me-4'>{clause&&clause.definition!==undefined&&clause.definition!==null?clause.definition.length:0}/1000</span>
+            </div>
+            </div>
+            <div className="col-12 my-4"> 
+            <div className="form__group field w-100">
+            <textarea maxLength={1000} type="input" className="form__field pe-5 p-2" value={clause&&clause.rationale?clause.rationale:''} 
+            onChange={(e)=>setclause(prevState=>({...prevState,rationale:e.target.value}))}
+            onBlur={()=> queryclient.setQueryData(["clause",id],clause)}
+            />
+            <label for="name" className="form__label">Purpose of {clause&&clause.clause_name?clause.clause_name.toLowerCase():""}</label>
+            <span className='position-absolute end-0 bottom-0 mb-2 me-4'>{clause&&clause.rationale!==undefined&&clause.rationale!==null?clause.rationale.length:0}/1000</span>
+            </div>
+            </div>
+            <div className="row justify-content-between">
+              <div className="col-auto">
+              <p className='p-0 m-0 text-gray2'>Add keywords for <h6 className='text-blue1 d-inline p-0 m-0'>{clause&&clause.clause_name?clause.clause_name.toLowerCase():""} </h6><small className='text-redmain p-0 m-0'> &#40; *add minimum two keywords to generate combinations &#41;</small></p>
+              </div>
+              <div className="col-auto">
+              <span className='text-gray2'>Keywords added:</span><span className='bg-transparentgreen1 fs-6 badge text-greenmain'>{' '}{clause&&clause.keywords?clause.keywords.length:0}{' '}</span>
+              </div>
+            </div>
+            <div className="row justify-content-between mt-3 p-0 m-0 align-items-center">
+            <div className="col-9 ps-0">
+              <Droppable_keywords Data={clause} clause_name={clause&&clause.clause_name?clause.clause_name:""} setclause={setclause}/>
+            </div>
+            <div className="col-auto p-0 m-0 d-flex align-items-center cursor-pointer border-0 border-bottom border-blue1" onClick={()=>GenerateCombinations()}>
+            <i class='bx bx-cog fs-5 text-blue1'></i>
+            <p className='p-0 m-0 text-blue1 ' >Generate Combinations</p>
+            </div>
+            </div>
+        </div>
+        </div>
+        <div className="carousel-item" data-bs-interval="2000">
+        <div className="d-block w-100">
+        {
+        isLoading2 || isFetching2 ? (
+          <div className='mt-4'>getting clause alternatives...</div>
+        ):(
+          <>
+          <button className='col-12 wrapper position-sticky top-0 bg-white pt-2 ps-2 pe-4 text-start d-flex justify-content-between text-blue1 mt-3 border-0 '>
+            <p className='p-0 m-0 d-inline text-gray1'>
+              <span className='fw-smibold text-blue1 p-0 m-0'>{clause&&clause.clause_name?clause.clause_name:''}</span> approaches {' '}|{' '}
+              <small className='p-0 m-0 pb-1 text-gray2'>create, update and add approaches and its categories </small></p>
+              <div className="d-flex justify-content-end me-2 position-absolute end-0">
+                      <button className=' px-2 bg-blue13 py-1 d-flex align-items-center rounded-2 border border-blue1'onClick={()=>Update_clause_alt_category(clause_alt_ctrgy)}>
+                      <i className='bx bx-save text-blue1'></i>
+                      <small className=' text-blue1'>Save</small>
+                      </button>
+                      </div>
+             </button>
+                  <nav className='pt-2'>
+                    <div className="nav scroll border-0 border-start-1 nav-tabs clause_nature" id="nav-tab" role="tablist">
+                      {
+                       clause_alt&&clause_alt !=undefined && clause_alt.length!=0 && clause_alt.map((Data,i)=>(
+                        <button className={`nav-link ${i==index?' active':''}`} id={`nav-${i}-tab`} onClick={()=>{setindex(i);setclause_alt_id(Data.id);setcategory('simple')}} data-bs-toggle="tab" data-bs-target={`#nav-${i}`} type="button" role="tab" aria-controls={`nav-${i}`} aria-selected="true">
+                        <input
+                        maxLength={100} 
+                        value={Data.nature?Data.nature:''}
+                        onChange={ ( e ) => {
+                         const updatednature = clause_alt.map(item => {
+                           if (item.id === Data.id) {
+                             return { ...item, nature:e.target.value };
+                           }
+                           return item; 
+                         });
+                         setclause_alt(updatednature);
+                       }}
+                       placeholder='clause Nature'
+                      />
+                  <button className='text-blue1 bg-transparent shadow-0 border-0 ' data-bs-toggle="collapse" data-bs-target="#collapseApproachdetails" aria-expanded="false" aria-controls="collapseApproachdetails">
+                  <i class='bx bx-menu' ></i>
+                   </button>
+                     </button>
+                      ))
+                      }
+                    <button className="nav-link d-flex align-items-center text-gray2 rounded-2 mb-1 bg-gray4" id="nav-new-tab" data-bs-toggle="tab" data-bs-target="#nav-new" type="button" role="tab" aria-controls="nav-new" aria-selected="true">
+                     <i className='bx bx-plus-circle fs-5 me-2'></i>approach
+                     </button>
+                    </div>
+                  </nav>
+              <div className="tab-content bg-blue13 border-top border-blue1" id="nav-tabContent">
+                {
+                 clause_alt.length!=0&&clause_alt.map((Data,i)=>(
+                  <>
+                  <div className={`tab-pane ${i==index?'fade show active':'fade'}`} onClick={()=>setindex(i)} id={`nav-${i}`} role="tabpanel" aria-labelledby={`nav-${i}-tab`} tabindex="0">
+
+                  <div className='collapse px-1' id='collapseApproachdetails'>
+                  <div className='row pt-2 pe-4 justify-content-between'>
+                    <div className="col-8">
+                    </div>
+                    <div className="col-auto rounded-2 bg-white text-blue1 border border-blue1 d-flex align-items-center">
+                    <i className='bx bx-save text-blue1'></i>
+                    <button className='bg-transparent text-blue1 border-0' onClick={()=>update_clauseAlt(Data)}>Update {Data.nature}</button>
+                    </div>
+                      <div className="col-auto">
+                      <div className="dropdown d-flex align-items-center bg-white border border-blue1 px-2 py-1 rounded-2">
+                      <i className='bx bx-cog text-blue1' role="button" data-bs-toggle="dropdown" aria-expanded="false" ></i>
+                     <span className='text-blue1' role="button" data-bs-toggle="dropdown" aria-expanded="false" >settings</span>                
+                    <ul className="dropdown-menu">
+                      {
+                        Data.status == 0 ? (
+                          <li onClick={()=>{Switch_status(Data.id,1)}}><div className="dropdown-item">Enable</div></li>
+                        ):(
+                          <li onClick={()=>{Switch_status(Data.id,0)}}><div className="dropdown-item">Disable</div></li>
+                        )
+                      }
+                      <li onClick={()=>{Confirm_delete(Data.id)}}><div className="dropdown-item">Delete</div></li>
+                    </ul>
+                    </div>
+                      </div>
+
+                  </div>
+                    <div className="form__group field w-100">
+                    <textarea maxLength={1000} type="input" className="form__field bg-white w-100 p-2" value={Data.rationale?Data.rationale:''} 
+                       onChange={ ( e ) => {
+                        const updatedrationale = clause_alt.map(item => {
+                          if (item.id === Data.id) {
+                            return { ...item, rationale:e.target.value };
+                          }
+                          return item; 
+                        });
+                         setclause_alt(updatedrationale)
+                      }}
+                    placeholder="Type clause purpose here..." name="purpose" />
+                    <label for="purpose" className="form__label">Definition of {Data.nature?Data.nature:''}</label>
+                    <span className='position-absolute end-0 bottom-0 mb-2 me-4'>{Data.rationale!==undefined||Data.rationale!==null?Data.rationale.length:0}/1000</span>
+                    </div>
+                    <div className="form__group field w-100">
+                    <textarea maxLength={1000} type="input" className="form__field bg-white p-2 w-100" value={Data.explaination?Data.explaination:''} 
+                       onChange={ ( e ) => {
+                        const updatedrationale = clause_alt.map(item => {
+                          if (item.id === Data.id) {
+                            return { ...item, explaination:e.target.value };
+                          }
+                          return item; 
+                        });
+                         setclause_alt(updatedrationale)
+                      }}
+                    placeholder="Type clause rationale here..." name="rationale" />
+                    <label for="rationale" className="form__label">Purpose or Rationale of {Data.nature?Data.nature:''}</label>
+                    <span className='position-absolute end-0 bottom-0 mb-2 me-4'>{Data.explaination!==undefined&&Data.explaination!==null?Data.explaination.length:0}/1000</span>
+                    </div>
+                    </div>
+                    <div className=''>
+                    {               
+                      categories!==undefined && categories.length!==0 ? (
+                        <ul className="nav align-items-center nav-pills bg-white mb-3 px-2" id="pills-tab" role="tablist"> 
+                        {
+                              categories.map((item,i)=>(
+                              <li className={`nav-item`} role="presentation" onClick={()=>(setcategory(item))}>
+                              <button className={`nav-link ${ctgryindex==i?'active':""}`} onClick={()=>{setctgryindex(i)}} id={`pills-${item}-tab`} data-bs-toggle="pill" data-bs-target={`#pills-${item}`} type="button" role="tab" aria-controls={`pills-${item}`} aria-selected="true">
+                              {item}
+                              </button>
+                            </li>
+                            ))
+                        } 
+ 
+                      </ul>
+                      ):(<></>)
+                    }
+                    <button className='col-12 px-2 pe-4 text-start d-flex justify-content-between text-blue1 bg-transparent mt-3 border-0 ' data-bs-toggle="collapse" data-bs-target="#collapseKeywords" aria-expanded="false" aria-controls="collapseKeywords">
+                    <p className='p-0 m-0'>
+                    Keyword combinations for {category} clauses </p> 
+                    <span>
+                    <span className='bg-transparentgreen1 text-greenmain rounded-2 px-2 py-1 me-2'>keywords:{keyword_combinations.keyword_combinations!==undefined?keyword_combinations.keyword_combinations.length:0}</span>
+                    <i className='bx bxs-down-arrow'></i>
+                    </span>
+                    </button>
+                    <div className='collapse mx-2' id='collapseKeywords'>
+                    <div className='d-flex justify-content-end p-0 m-0 ms-3 me-3 mb-1 ' >
+                    <button className='text-blue1 border d-flex align-items-center border-blue1 bg-white px-2 my-1 py-1 bg-white rounded-2' onClick={()=>updateKC()}>
+                    <i className='bx bx-save text-blue1'></i>
+                    <small className=''>Save</small></button>
+                    </div>
+                    <div className='overflow-scroll position-relative' style={{maxHeight:'40vh'}}>
+                   {
+                     isLoading4 || isFetching4 ? (
+                     <div>loading keyword combinations...</div>):(
+                      keyword_combinations!==null&&keyword_combinations!==undefined && keyword_combinations.length!==0?(
+                      <table className={`table ps-3 bg-white d-${keyword_combinations.category == category?'':'none'}`}>
+                        <thead className='text-gray2 position-sticky top-0 bg-white'>
+                            <tr className=''>
+                              <th className='fw-normal' scope="col">S.No</th>
+                              <th className='fw-normal' scope="col">Prefix</th>
+                              <th className='fw-normal' scope="col">Keyword 1</th>
+                              <th className='fw-normal' scope="col">Middle</th>
+                              <th className='fw-normal' scope="col">Keyword 2</th>
+                              <th className='fw-normal' scope="col">Suffix</th>
+                              <th className='fw-normal text-center' scope="col">Duplicate</th>
+                              <th className='fw-normal text-center' scope="col">Delete</th>
+                            </tr>
+                        </thead>
+                      <tbody>
+                        {
+                      keyword_combinations.keyword_combinations!==null&&keyword_combinations.keyword_combinations!==undefined && keyword_combinations.length!==0 && keyword_combinations.keyword_combinations.map((item,i)=>(
+                      <tr className='border-white'>
+                        <th className='fw-normal'>{i+1}.</th>
+                        <td>
+                          <input className='input_border_bottom bg-transparent'
+                          type='text' value={item.prefix}
+                          maxLength={100}
+                          onChange={(e)=>{UpdateKeywordCombination(i,'prefix',e.target.value)}}
+                          onBlur={()=> queryclient.setQueryData(["keyword_combinations",id,clause_alt_id,category],keyword_combinations)}
+                          />
+                        </td>
+                        <td>{item.keyword1}</td>
+                        <td>
+                        {
+                            item.middle!==undefined? (
+                              <input className='input_border_bottom' type='text' 
+                              value={item.middle}
+                              maxLength={100}
+                              onChange={(e)=>{UpdateKeywordCombination(i,'middle',e.target.value)}}
+                              onBlur={()=> queryclient.setQueryData(["keyword_combinations",id,clause_alt_id,category],keyword_combinations)}
+                              />
+                            
+                            ):(
+                              <></>
+                            )
+                          }
+                        </td>
+                        <td>{item.keyword2}</td>
+                        <td>
+                        <input className='input_border_bottom bg-transparent' type='text' 
+                        value={item.suffix}
+                        maxLength={100}
+                        onChange={(e)=>{UpdateKeywordCombination(i,'suffix',e.target.value)}}
+                        onBlur={()=> queryclient.setQueryData(["keyword_combinations",id,clause_alt_id,category],keyword_combinations)}
+                        />
+                        </td>
+                        <td className='text-center'>
+                          <button className='bg-gray4 border-0 text-gray1 rounded-2 px-2 py-1' onClick={()=>Add_duplicate(item.keyword1,item.keyword2)}>Duplicate</button>
+                          </td>
+                          <td>
+                            <button className='bg-transparentred1 text-redmain px-2 py-1 rounded-2 border-0 ' onClick={()=>Delete_KeywordCombination(keyword_combinations.keyword_combinations,i)}>Delete</button>
+                          </td>
+                      </tr>
+                      )) 
+                        }
+                      </tbody>
+                      </table> 
+                       
+                  ):(
+              keyword_combinations.keyword_combinations==null||clause.keyword_combinations!==null ? (
+                <button className='border-0 text-blue1 bg-transparent border-bottom border-blue1 d-flex align-items-center ' 
+                onClick={()=>{AddKeyword_combinations()}}><i className='bx bx-plus-circle fs-5'></i>Get Combinations for {category} clauses</button>
+              ):(
+                <button className='border-0 text-blue1 bg-transparent border-bottom border-blue1 d-flex align-items-center ' 
+                onClick={()=>{AddKeyword_combinations()}}><i className='bx bx-plus-circle fs-5'></i>Get Combinations for {category} clauses</button>
+              )
+             )
+                    )
+                  }
+                  </div>
+                    </div>
+          {
+            isLoading3 || isFetching3 ? (
+            <div>loading clause alternate categories ....</div>)
+            :(
+            clause_alt_ctrgy!==undefined && clause_alt_ctrgy.length!==0 ? (
+              <div>
+              {
+              clause_alt_ctrgy.map((item,i)=>(
+                <div className={`d-${item.category==category?'block':'none'} my-2 mx-2`}>
+                <select value={item.keyword?item.keyword:""} 
+                onFocus={()=>seteditorIndex(i)}
+                onChange={(e)=>{                   
+                  const updatedClauses = clause_alt_ctrgy.map((data,index) => {
+                    const newdata = e.target.value
+                  if (editorIndex == index) {
+                    return { ...data, keyword: newdata};
+                  }
+                  return data; 
+                })
+                setclause_alt_ctrgy(updatedClauses)
+                }} 
+              onBlur={()=> queryclient.setQueryData(["clause_alt_ctrgy",id,clause_alt_id],clause_alt_ctrgy)}
+                className='border rounded-top-1 border-bottom-0 pe-2 py-2'>
+                    <option value='null' className='text-gray2'>Choose combination for this sample clause</option>
+                   {
+                     keyword_combinations!==null && keyword_combinations!==undefined&&keyword_combinations.length!==0&&keyword_combinations.keyword_combinations!==null&&keyword_combinations.keyword_combinations.map((combinations,i)=>(
+                       <option className='' value={JSON.stringify(combinations)}>{combinations.prefix}{' '}{combinations.keyword1}{' '}{combinations.middle}{' '}{combinations.keyword2}{' '}{combinations.suffix}</option>
+                     ))
+                   }
+                 </select>
+                <CKEditor
+                    editor={Editor}
+                    config={editorConfiguration}
+                    data={item.html?item.html:'<p></p>'}
+                   onReady={ ( editor ) => {
+                     if(editor){
+                       return editor
+                     }
+                   }}
+                   onFocus={()=>seteditorIndex(i)}
+                   onChange={ ( event, editor ) => {
+                     const newdata = editor.getData()
+                     const updatedClauses = clause_alt_ctrgy.map((data,index) => {
+                       if (editorIndex == index) {
+                        console.log(editorIndex,index);
+                         return { ...data, html: newdata };
+                       }
+                       return data; 
+                     })
+                     setclause_alt_ctrgy(updatedClauses)
+                   }
+                  }
+                  onBlur={()=> queryclient.setQueryData(["clause_alt_ctrgy",id,clause_alt_id],clause_alt_ctrgy)}
+                     />
+                </div>
+
+              ))
+              }
+                <div className="row mx-2 p-0 m-0 mt-3 justify-content-center">
+               <div 
+               onClick={()=>{
+              setclause_alt_ctrgy(prevState=>([...prevState,New_clause_alt_category_obj]));
+              queryclient.setQueryData(["clause_alt_ctrgy",id,clause_alt_id],clause_alt_ctrgy);
+              }} className="col-12 d-flex align-items-center justify-content-center cursor-pointer rounded-2 bg-white mb-4 py-2 text-center">
+               <i className='bx bxs-add-to-queue text-blue1'></i><span className='text-blue1'>Add {category} clause</span>
+               </div>
+             </div>
+              </div>
+            ):(<div>no categories found</div>)
+            )
+          }
+                    </div>
+                  </div>
+                  </>
+                ))
+                }
+                {/* Add new clause Alternate */}
+                <div className="tab-pane fade mt-3" id="nav-new" role="tabpanel" aria-labelledby="nav-new-tab" tabindex="0">
+                <div className="float-end cursor-pointer me-5 mb-3" style={{width:'min-content'}} onClick={()=>Add_new_clause_alt()} >
+                <div className="d-flex align-items-center">
+                <span className="text-blue1">Save</span><i className='bx bxs-save text-blue1' ></i>
+                </div>
+                </div> 
+                <section className='col-12'>
+                <label htmlFor="clause_tag">clause Nature</label>
+                <input type="text" className='mb-4 py-2 border border-gray1 w-100 d-block p-2' 
+                value={new_clause_alt&&new_clause_alt.nature?new_clause_alt.nature:''} 
+                onChange={(e)=>{setnew_clause_alt(prevState=>({...prevState,nature:e.target.value}))}}/>
+                <label htmlFor="rationale" className='text-gray1 p-2'>clause Purpose</label>
+                <textarea className='mb-4 py-2 border border-gray1 w-100 d-block p-2' value={new_clause_alt&&new_clause_alt.rationale?new_clause_alt.rationale:''} onChange={(e)=>{setnew_clause_alt(prevState=>({...prevState,rationale:e.target.value}))}} />
+                <label htmlFor="rationale" className='text-gray1 p-2'>clause Explaination</label>
+                <textarea className='mb-4 py-2 border border-gray1 w-100 d-block p-2' value={new_clause_alt&&new_clause_alt.explaination?new_clause_alt.explaination:''} onChange={(e)=>{setnew_clause_alt(prevState=>({...prevState,explaination:e.target.value}))}} />
+                </section>
+
+                </div>
+                {/* Add new clause Alternate */}
+                </div>
+          
+          </>
+        )
+        }
+        </div>
+        </div>
+        </div>
+        <div className="d-flex mt-3 mx-3 justify-content-between">
+        <button onClick={()=>setcarousel(carousel-1)} className="btn border-0 border-bottom border-blue1 rounded-0" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="prev">
+            <span className="text-blue1">Previous</span>
+          </button>
+          <button onClick={()=>setcarousel(carousel+1)} className={`btn d-${carousel==1?'none':'block'} border-0 border-bottom border-blue1 rounded-0`} type="button" data-bs-target="#carouselExampleDark" data-bs-slide="next">
+            <span className="text-blue1">Next</span>
+          </button>
+        </div>
+          </div>
+  {/*old ui */}
+    <section className='container d-none mt-4 update_clause_section'>
+
       {
          isLoading1 || isFetching1 ? (
-          <span class="loader"><h4 className='mb-5 pb-3'>LegalBuddy</h4></span>
+          <span className="loader"><h4 className='mb-5 pb-3'>LegalBuddy</h4></span>
         ):(
       <div className='container-fluid updateclausesection p-0 m-0 position-relative mt-4'>
       <button className='col-12 pe-4 text-start text-blue1 bg-transparent d-flex justify-content-between py-2 ps-2 border-0 ' data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
         <p className='p-0 m-0'>Clause details and keywords</p> 
-        <i class='bx bxs-down-arrow'></i>        
+        <i className='bx bxs-down-arrow'></i>        
       </button>
       <div className='collapse show' id='collapseExample'>
 
@@ -427,11 +893,9 @@ console.log(keyword_combinations);
                  }
                </div>
               {/* Draggable keywords */}
-              <div className="col-auto">
       <div className="d-flex align-items-center justify-content-end cursor-pointer " onClick={()=>Update()}>
-      <span className='p-0 m-0 text-blue1'>Save clause details</span>
       <i className='bx bx-save fs-5 text-blue1'></i>
-      </div>
+      <span className='p-0 m-0 text-blue1'>Save</span>
       </div>
       <div className="col-12">
       <div className="form__group field w-100">
@@ -478,6 +942,7 @@ console.log(keyword_combinations);
         <Droppable_keywords Data={clause} clause_name={clause&&clause.clause_name?clause.clause_name:""} setclause={setclause}/>
       </div>
       <div className="col-auto">
+        
         <button className='bg-blue13 text-blue1 border-0 px-2 py-1 rounded-pill' onClick={()=>GenerateCombinations()}>Generate Combinations</button>
       </div>
       </div>
@@ -491,7 +956,7 @@ console.log(keyword_combinations);
           <>
           <button className='col-12 ps-2 pe-4 text-start d-flex justify-content-between text-blue1 bg-transparent mt-3 border-0 ' data-bs-toggle="collapse" data-bs-target="#collapseApproaches" aria-expanded="false" aria-controls="collapseApproaches">
             <p className='p-0 m-0'>Approaches for {clause&&clause.clause_name?clause.clause_name:''}</p> 
-             <i class='bx bxs-down-arrow'></i>            
+             <i className='bx bxs-down-arrow'></i>            
              </button>
           <div className='collapse show' id='collapseApproaches'>
                   <nav className='pt-2'>
@@ -528,7 +993,7 @@ console.log(keyword_combinations);
                   <div className={`tab-pane ${i==index?'fade show active':'fade'}`} onClick={()=>setindex(i)} id={`nav-${i}`} role="tabpanel" aria-labelledby={`nav-${i}-tab`} tabindex="0">
                   <button className='col-12 pe-4 d-flex justify-content-between ps-2 text-start text-blue1 py-2 bg-blue13 shadow-0 border-0 ' data-bs-toggle="collapse" data-bs-target="#collapseApproachdetails" aria-expanded="false" aria-controls="collapseApproachdetails">
                     <p className='p-0 m-0'>Approach details</p>
-            <i class='bx bxs-down-arrow'></i>                    </button>
+            <i className='bx bxs-down-arrow'></i>                    </button>
                   <div className='collapse show px-1' id='collapseApproachdetails'>
                   <div className='row pt-2 pe-4 justify-content-between'>
                     <div className="col-8">
@@ -608,7 +1073,8 @@ console.log(keyword_combinations);
                     }
                     <button className='col-12 ps-2 pe-4 text-start d-flex justify-content-between text-blue1 bg-transparent mt-3 border-0 ' data-bs-toggle="collapse" data-bs-target="#collapseKeywords" aria-expanded="false" aria-controls="collapseKeywords">
                     <p className='p-0 m-0'>Keyword combinations for {category} clauses</p> 
-            <i class='bx bxs-down-arrow'></i>                    </button>
+                    <i className='bx bxs-down-arrow'></i>
+                    </button>
                     <div className='collapse show' id='collapseKeywords'>
                     <div className='d-flex justify-content-end p-0 m-0 ms-3 me-3 ' >
                     <button className='text-blue1 border-0 bg-white px-3 py-2 bg-white rounded-top-2' onClick={()=>updateKC()}>
@@ -675,10 +1141,10 @@ console.log(keyword_combinations);
                   ):(
               keyword_combinations.keyword_combinations==null||clause.keyword_combinations!==null ? (
                 <button className='border-0 text-blue1 bg-transparent border-bottom border-blue1 d-flex align-items-center ' 
-                onClick={()=>{AddKeyword_combinations()}}><i class='bx bx-plus-circle fs-5'></i>Get Combinations for {category} clauses</button>
+                onClick={()=>{AddKeyword_combinations()}}><i className='bx bx-plus-circle fs-5'></i>Get Combinations for {category} clauses</button>
               ):(
                 <button className='border-0 text-blue1 bg-transparent border-bottom border-blue1 d-flex align-items-center ' 
-                onClick={()=>{AddKeyword_combinations()}}><i class='bx bx-plus-circle fs-5'></i>Get Combinations for {category} clauses</button>
+                onClick={()=>{AddKeyword_combinations()}}><i className='bx bx-plus-circle fs-5'></i>Get Combinations for {category} clauses</button>
               )
              )
                     )
@@ -693,13 +1159,13 @@ console.log(keyword_combinations);
               <div>
 
               {
-              clause_alt_ctrgy.map((item)=>(
+              clause_alt_ctrgy.map((item,i)=>(
                 <div className={`d-${item.category==category?'block':'none'} my-2`}>
                 <select value={item.keyword?item.keyword:""} 
                 onChange={(e)=>{                   
-                  const updatedClauses = clause_alt_ctrgy.map(data => {
+                  const updatedClauses = clause_alt_ctrgy.map((data,i) => {
                     const newdata = e.target.value
-                  if (item.id == data.id) {
+                  if (i == editorIndex) {
                     return { ...data, keyword: newdata};
                   }
                   return data; 
@@ -724,17 +1190,16 @@ console.log(keyword_combinations);
                        return editor
                      }
                    }}
-                   onChange={ ( event, editor ) => {
-                     const newdata = editor.getData()
-                     const updatedClauses = clause_alt_ctrgy.map(data => {
-                       if (item.id == data.id) {
-                         return { ...data, html: newdata };
-                       }
-                       return data; 
-                     })
-                     setclause_alt_ctrgy(updatedClauses)
-                   }
-                  }
+                   onChange={(event,editor)=>{          
+                    const newdata  = editor.getData()        
+                    const updatedClauses = clause_alt_ctrgy.map((data,index) => {
+                    if (index == editorIndex) {
+                      return { ...data, html: newdata};
+                    }
+                    return data; 
+                  })
+                  setclause_alt_ctrgy(updatedClauses)
+                  }}
                   onBlur={()=> queryclient.setQueryData(["clause_alt_ctrgy",id,clause_alt_id],clause_alt_ctrgy)}
                      />
                 </div>
@@ -763,7 +1228,7 @@ console.log(keyword_combinations);
                 <div className="tab-pane fade mt-3" id="nav-new" role="tabpanel" aria-labelledby="nav-new-tab" tabindex="0">
                 <div className="float-end cursor-pointer me-5 mb-3" style={{width:'min-content'}} onClick={()=>Add_new_clause_alt()} >
                 <div className="d-flex align-items-center">
-                <span className="text-blue1">Save</span><i class='bx bxs-save text-blue1' ></i>
+                <span className="text-blue1">Save</span><i className='bx bxs-save text-blue1' ></i>
                 </div>
                 </div> 
                 <section className='col-12'>
@@ -789,7 +1254,8 @@ console.log(keyword_combinations);
       )
      }
     </section>
-    </>
+     {/*old ui */}
+    </section>
   )
 }
 
