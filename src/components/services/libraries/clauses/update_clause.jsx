@@ -336,7 +336,6 @@ function GenerateCombinations() {
     })
   }
 }
-console.log(combinations);
 const updateClause = {...clause,keyword_combinations:combinations}
 queryclient.setQueryData(["clause",id],updateClause)
 Update()
@@ -393,7 +392,6 @@ const SaveAll=()=>{
   updateKC()
   Update_clause_alt_category(clause_alt_ctrgy)
 }
-console.log(carousel);
 
     return (
       <section className='container mt-2'>
@@ -748,7 +746,7 @@ console.log(carousel);
                 onChange={(e)=>{                   
                   const updatedClauses = clause_alt_ctrgy.map((data,index) => {
                     const newdata = e.target.value
-                  if (editorIndex == index) {
+                  if (editorIndex == index && item.category==category) {
                     return { ...data, keyword: newdata};
                   }
                   return data; 

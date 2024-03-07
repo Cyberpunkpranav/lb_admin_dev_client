@@ -3,6 +3,17 @@ import axios from './axios'
 // /api/admin/admin_users/list
 // /admin_users/websites/list
 
+export const Get_Colors  = async()=>{
+    let data;
+    try {
+        await axios.get(`/api/utils/keywords/list`).then((response)=>{
+            data = response
+        })
+    } catch (error) {
+        toast.error(error.message)
+    }
+    return data
+}
 export const Get_websites  = async()=>{
     let data;
     try {

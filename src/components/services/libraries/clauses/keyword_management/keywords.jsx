@@ -7,18 +7,18 @@ import Loader from '../../../../../utils/loader'
 import { useQuery,useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import Notiflix from 'notiflix'
-import Clauses from '../clauses'
 
 const Keywords = () => {
   const queryClient = useQueryClient()
-
+  const colors = queryClient.getQueryData(['colors'])
   const [Add_new_keyword,setAdd_new_keyword] = useState({
     keyword:"",
     inactive_keywords:""
   })
   const [Update_keyword,setUpdate_keyword] = useState({
     keyword:"",
-    inactive_keywords:''
+    inactive_keywords:'',
+    hexcode:''
   })
 // const keyword_data=''
   const [id,setid] = useState()
@@ -87,9 +87,8 @@ const Keywords = () => {
           }
         });
       }
-    };
+    }
     
-
     const Is_Add_keyword_exist = (id)=>{
       if(Update_keyword.inactive_keywords!==null&&Update_keyword.inactive_keywords !== undefined){
         const isIDExist = Add_new_keyword.inactive_keywords.split(',').map((str) => str.trim()).includes(id);
@@ -149,8 +148,9 @@ const Keywords = () => {
       }
       return keywords
     }
+    // console.log(Add_new_keyword,Update_keyword)
 
-    console.log(Add_new_keyword,Update_keyword);
+    console.log(colors)
 
   if(isLoading||isFetching){
     return <Loader/>
@@ -170,7 +170,7 @@ const Keywords = () => {
       <h5 className='align-self-center'>Keywords</h5>
       </div>
       <div className='col ms-2'>
-      <i className='bx cursor-pointer bxs-plus-circle fs-4' data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvas" ></i> 
+      <i className='bx cursor-pointer bxs-plus-circle fs-4' data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvas"></i> 
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas" aria-labelledby="offcanvas">
     <div class="offcanvas-header">
       <h5 class="offcanvas-title" id="offcanvas">Add Keyword</h5>
@@ -200,12 +200,23 @@ const Keywords = () => {
          }
          </div>
         </div>
+        <div className="col-12">
+          <p>Choose color</p>
+          <select className='border-0 bg-transparent'>
+          <option value="">select color</option>
+            {
+              colors!==undefined&&colors.map((data)=>(
+                <option className={`bg-${data.color_name}`} value={data.id}>{data.color_name}
+                </option>
+              ))
+            }
+          </select>
+        </div>
       </div>
-    </div>
-    </div>
-    </div>
 
-
+    </div>
+    </div>
+    </div>
     </div>
 
     <table className='table w-100 mt-4 align-middle'>
@@ -255,9 +266,20 @@ const Keywords = () => {
                }
                </div>
               </div>
+              <div className="col-12">
+              <p>Choose color</p>
+              <select className='border-0 bg-transparent'>
+                <option value="">select color</option>
+                {
+                  colors!==undefined&&colors.map((data)=>(
+                    <option className={`bg-${data.color_name}`} value={data.hexcode}>{data.color_name}
+                    <span className={`p-2`}></span>
+                    </option>
+                  ))
+                }
+              </select>
             </div>
-             
-             
+            </div>
           </div>
           </div>
           </td>

@@ -1,6 +1,6 @@
 import { lazy,Suspense, useEffect,useState,useContext,createContext} from "react";
 import { Routes, Route } from "react-router-dom";
-import { Get_permissions_by_role_id } from "./api/get_apis";
+import { Get_permissions_by_role_id,Get_Colors } from "./api/get_apis";
 import { useQuery } from "@tanstack/react-query"; 
 import Cookies from "js-cookie";
 import './utils/notiflix'
@@ -39,7 +39,6 @@ const Users = lazy(()=>import('./components/users/users'))
 const UpdateUser = lazy(()=>import('./components/users/update_user'))
 const Roles = lazy(()=>import('./components/roles/roles'))
 const EditRole = lazy(()=>import('./components/roles/edit_role'))
-
 const Keywords = lazy(()=>import('./components/services/libraries/clauses/keyword_management/keywords'))
 //Not Found
 const NotFound = lazy(()=>import('./components/not_found'))
@@ -47,24 +46,36 @@ const NotFound = lazy(()=>import('./components/not_found'))
 function App(){
   const encrypterd_role_id = Cookies.get('role_id')
   const role_id = decryptNumber(encrypterd_role_id)
+
+  const colors = async()=>{
+    const data = await Get_Colors()
+    return data.data.data
+  }
   const permissions = async()=>{
     const data = await Get_permissions_by_role_id(role_id)
     return data.data
   }
+  const {data:colors_data} = useQuery({
+      queryKey:['colors'],
+      queryFn:colors
+    }
+  )
   const { data:permission_data } = useQuery(
     { 
     queryKey: ["permissions",role_id],
      queryFn:permissions,
     }) 
+
     // useEffect(()=>{
     //   if(permission_data!==undefined){
     //     setpermissions(permission_data)
     //   }
     // },[permission_data])
 
-  // useEffect(()=>{
-  //   Access_token()  
-  // },[])
+    // useEffect(()=>{
+    //   Access_token()  
+    // },[])
+
   return(
     <Suspense fallback={<div className="text-charcoal75 fs-6 fw-bold text-center"> {" "} loading..{" "} </div>} >
     <Permissions.Provider value={permission_data}>
